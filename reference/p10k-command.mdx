@@ -1,7 +1,7 @@
 ---
-title: "p10k Command Reference"
+title: "p10k Command Reference: All Subcommands and Options"
 sidebarTitle: "p10k Command"
-description: "Complete reference for the p10k CLI command — subcommands configure, reload, segment, display, help, finalize, and clear-instant-prompt."
+description: "Full reference for every p10k subcommand: configure, reload, segment, display, help, finalize, and clear-instant-prompt, with flags and examples."
 ---
 
 The `p10k` command is the single user-facing CLI installed by Powerlevel10k. It exposes every runtime capability of the theme — from launching the configuration wizard to controlling which prompt segments are visible — through a set of well-defined subcommands. All Powerlevel10k configuration is read from `~/.p10k.zsh`, and `p10k` is your primary tool for generating, reloading, and dynamically adjusting that configuration without restarting your shell.
@@ -247,8 +247,8 @@ The following `POWERLEVEL9K_*` parameters govern the overall behaviour of the th
   - `ascii` — ASCII-only; works with every font.
 </ParamField>
 
-<ParamField body="POWERLEVEL9K_CONFIG_FILE" type="string" default="~/.p10k.zsh">
-  Path to the configuration file written by `p10k configure`. Override this to use a different location.
+<ParamField body="POWERLEVEL9K_CONFIG_FILE" type="string" default="${ZDOTDIR:-~}/.p10k.zsh">
+  Path to the configuration file written by `p10k configure`. Defaults to `${ZDOTDIR:-~}/.p10k.zsh`. Override this variable before sourcing the theme to use a different location.
 </ParamField>
 
 <ParamField body="POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD" type="boolean" default="false">

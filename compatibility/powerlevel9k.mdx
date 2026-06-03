@@ -1,7 +1,7 @@
 ---
-title: "Migrate from Powerlevel9k to Powerlevel10k"
+title: "Migrate from Powerlevel9k to Powerlevel10k Seamlessly"
 sidebarTitle: "Powerlevel9k"
-description: "Powerlevel10k is a drop-in replacement for Powerlevel9k — all POWERLEVEL9K_* configuration parameters work unchanged, with dramatically better performance."
+description: "Powerlevel10k is a drop-in replacement for Powerlevel9k. All POWERLEVEL9K_* parameters work unchanged — migrate in seconds with zero config edits."
 ---
 
 Powerlevel10k is designed to be a seamless drop-in replacement for Powerlevel9k. Every `POWERLEVEL9K_*` parameter you have already defined continues to work without modification, and your prompt will look virtually identical — only much faster. If you are migrating from Powerlevel9k, you do not need to touch your existing configuration; just swap the theme and restart Zsh.
@@ -63,11 +63,11 @@ POWERLEVEL9K_VCS_BACKENDS=(git svn hg)
 
 ### `POWERLEVEL9K_VCS_SHOW_SUBMODULE_DIRTY=true` Is Not Supported
 
-Powerlevel10k does not support the `POWERLEVEL9K_VCS_SHOW_SUBMODULE_DIRTY=true` parameter. If you have this set in your config, remove it to avoid unexpected behavior.
+Powerlevel10k does not support the `POWERLEVEL9K_VCS_SHOW_SUBMODULE_DIRTY=true` parameter. If you have this set in your config, remove it.
 
 ### `POWERLEVEL9K_MODE` Behavior
 
-Powerlevel9k silently ignores `POWERLEVEL9K_MODE` when it is set before the theme is sourced. Powerlevel10k respects it in all cases. If you see different icons in Powerlevel10k compared to Powerlevel9k, you likely have `POWERLEVEL9K_MODE` defined in `~/.zshrc`. Remove that parameter to restore the icon appearance you had with Powerlevel9k.
+Powerlevel9k ignores `POWERLEVEL9K_MODE` when it is set before the theme is sourced. Powerlevel10k respects it in all cases. If you see different icons in Powerlevel10k compared to Powerlevel9k, you likely have `POWERLEVEL9K_MODE` defined in `~/.zshrc` before the theme is sourced. Remove that parameter to restore the icon appearance you had with Powerlevel9k.
 
 ### `ZLE_RPROMPT_INDENT` Behavior
 

@@ -1,7 +1,7 @@
 ---
-title: "Git Status in Powerlevel10k Prompt Explained"
+title: "Powerlevel10k Git Status: Symbols and Meanings Explained"
 sidebarTitle: "Git Status"
-description: "Understand every symbol in Powerlevel10k's Git status segment — branch, remote tracking, stashes, staged/unstaged changes, and more."
+description: "Decode every Powerlevel10k Git status symbol: branch, tracking, stashes, staged and unstaged changes, merge conflicts, and untracked files explained."
 ---
 
 Powerlevel10k's `vcs` segment displays rich, real-time Git repository status directly in your prompt. It is powered by [gitstatus](https://github.com/romkatv/gitstatus), which spawns a native `gitstatusd` daemon in the background. Because `gitstatusd` uses libgit2 rather than shelling out to the `git` binary, it can inspect even very large repositories with virtually zero perceptible latency.
@@ -18,21 +18,21 @@ Each part of this string has a specific meaning:
 
 | Symbol | Meaning | Source |
 |---|---|---|
-| `feature` | Current branch; replaced with `#tag` or `@commit` if not on a branch | `git status --ignore-submodules=dirty` |
-| `master` | Remote tracking branch; only shown if different from the local branch | `git rev-parse --abbrev-ref --symbolic-full-name @{upstream}` |
-| `wip` | The latest commit's summary contains `wip` or `WIP` | `git show --pretty=%s --no-patch HEAD` |
-| `=` | Up to date with the remote (neither ahead nor behind) | `git rev-list --count HEAD...@{upstream}` |
-| `⇣42` | This many commits behind the remote | `git rev-list --right-only --count HEAD...@{upstream}` |
-| `⇡42` | This many commits ahead of the remote | `git rev-list --left-only --count HEAD...@{upstream}` |
-| `⇠42` | This many commits behind the push remote | `git rev-list --right-only --count HEAD...@{push}` |
-| `⇢42` | This many commits ahead of the push remote | `git rev-list --left-only --count HEAD...@{push}` |
-| `*42` | This many stashes | `git stash list` |
-| `merge` | Repository state (e.g., mid-merge, mid-rebase) | `git status --ignore-submodules=dirty` |
-| `~42` | This many merge conflicts | `git status --ignore-submodules=dirty` |
-| `+42` | This many staged changes | `git status --ignore-submodules=dirty` |
-| `!42` | This many unstaged changes | `git status --ignore-submodules=dirty` |
-| `?42` | This many untracked files | `git status --ignore-submodules=dirty` |
-| `─` | The number of staged, unstaged, or untracked files is unknown | `echo $POWERLEVEL9K_VCS_MAX_INDEX_SIZE_DIRTY` or `git config --get bash.showDirtyState` |
+| `feature` | current branch; replaced with `#tag` or `@commit` if not on a branch | `git status --ignore-submodules=dirty` |
+| `master` | remote tracking branch; only shown if different from local branch | `git rev-parse --abbrev-ref --symbolic-full-name @{upstream}` |
+| `wip` | the latest commit's summary contains "wip" or "WIP" | `git show --pretty=%s --no-patch HEAD` |
+| `=` | up to date with the remote (neither ahead nor behind) | `git rev-list --count HEAD...@{upstream}` |
+| `⇣42` | this many commits behind the remote | `git rev-list --right-only --count HEAD...@{upstream}` |
+| `⇡42` | this many commits ahead of the remote | `git rev-list --left-only --count HEAD...@{upstream}` |
+| `⇠42` | this many commits behind the push remote | `git rev-list --right-only --count HEAD...@{push}` |
+| `⇢42` | this many commits ahead of the push remote | `git rev-list --left-only --count HEAD...@{push}` |
+| `*42` | this many stashes | `git stash list` |
+| `merge` | repository state | `git status --ignore-submodules=dirty` |
+| `~42` | this many merge conflicts | `git status --ignore-submodules=dirty` |
+| `+42` | this many staged changes | `git status --ignore-submodules=dirty` |
+| `!42` | this many unstaged changes | `git status --ignore-submodules=dirty` |
+| `?42` | this many untracked files | `git status --ignore-submodules=dirty` |
+| `─` | the number of staged, unstaged or untracked files is unknown | `echo $POWERLEVEL9K_VCS_MAX_INDEX_SIZE_DIRTY` or `git config --get bash.showDirtyState` |
 
 ## Asynchronous updates and the loading colour
 

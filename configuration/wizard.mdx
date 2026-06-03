@@ -1,7 +1,7 @@
 ---
 title: "Configure Powerlevel10k with the Interactive Wizard"
 sidebarTitle: "Wizard"
-description: "Use `p10k configure` to interactively choose your prompt style, icons, colors, and features — no manual file editing required."
+description: "Use `p10k configure` to interactively choose your prompt style, icons, colors, and features — no manual file editing required to get started."
 ---
 
 The Powerlevel10k configuration wizard is the easiest way to set up your prompt. It walks you through a series of visual questions — font checks, style selection, icon density, transient prompt, and instant prompt — and then writes a fully-commented `~/.p10k.zsh` configuration file based on your answers. You can run it as many times as you like; each run overwrites the previous file.
@@ -96,7 +96,7 @@ After completing the wizard, `~/.p10k.zsh` contains:
 - `POWERLEVEL9K_LEFT_PROMPT_ELEMENTS` and `POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS` arrays listing all active segments
 - Per-segment color, icon, and format parameters — each one commented with a human-readable explanation
 - `POWERLEVEL9K_INSTANT_PROMPT` set to `verbose`, `quiet`, or `off` based on your answer
-- `POWERLEVEL9K_TRANSIENT_PROMPT` set based on your preference
+- `POWERLEVEL9K_TRANSIENT_PROMPT` set to `always`, `same-dir`, or `off` based on your preference
 
 The file is designed to be edited by hand after generation. Every parameter is documented inline, and related parameters are grouped together.
 

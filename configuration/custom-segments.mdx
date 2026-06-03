@@ -67,20 +67,22 @@ Powerlevel10k looks for a shell function named `prompt_<segmentname>` every time
 
 The `p10k segment` command is the only way for a `prompt_*` function to produce output. It can be called multiple times within a single function to emit multiple visual states, but only one call will "win" per render — the last non-hidden call takes effect.
 
-```
-p10k segment [-s STATE] [-b BG] [-f FG] [-i ICON] [-c COND] [-t TEXT] [-r] [-e]
+```text
+p10k segment [-h] [{+|-}re] [-s STATE] [-b BG] [-f FG] [-i ICON] [-c COND] [-t TEXT]
 ```
 
 | Flag | Argument | Description |
 |------|----------|-------------|
 | `-s` | `STATE` | Optional state name (e.g., `HOT`, `COOL`). Uppercased and appended to the parameter prefix for conditional styling. |
-| `-b` | `BG` | Background color: a number (0–255), a `#RRGGBB` truecolor string, or empty for transparent. Defaults to black (`0`). |
+| `-b` | `BG` | Background color: a number (0–255), a `#RRGGBB` truecolor string, or empty for transparent. Defaults to `0`. |
 | `-f` | `FG` | Foreground color: a number, `#RRGGBB`, or empty for the terminal default. |
 | `-i` | `ICON` | Icon character or glyph to display before the text. Defaults to empty. |
-| `-r` | — | Treat the icon as a symbolic reference (e.g., `LOCK_ICON`) to be resolved by Powerlevel10k's icon table. Without `-r`, the icon is printed literally. |
+| `-r` | — | Icon is a symbolic reference (e.g., `LOCK_ICON`) to be resolved by Powerlevel10k's icon table. |
+| `+r` | — | Icon is already resolved and should be printed literally (e.g., `'⭐'`). This is the default. |
 | `-c` | `COND` | Condition expression. If the value is empty after parameter expansion, the segment is hidden. Default is `'1'` (always shown). |
 | `-t` | `TEXT` | The segment's main text content. Undergoes Zsh prompt expansion (`%F{color}`, `%*`, etc.). |
 | `-e` | — | Also expand `-t TEXT` via parameter expansion and process substitution (advanced use). |
+| `+e` | — | Do not expand `-t TEXT` via parameter expansion or process substitution. This is the default. |
 | `-h` | — | Print built-in help and exit. |
 
 Run `p10k help segment` in an active Zsh session for the complete reference, including more examples.

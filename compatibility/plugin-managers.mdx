@@ -1,7 +1,7 @@
 ---
-title: "Using Powerlevel10k with Zsh Plugin Managers"
+title: "Installing Powerlevel10k with Any Zsh Plugin Manager"
 sidebarTitle: "Plugin Managers"
-description: "Troubleshoot and configure Powerlevel10k with Oh My Zsh, Prezto, Zim, Zinit, Antigen, and other popular Zsh plugin managers."
+description: "Install Powerlevel10k with Oh My Zsh, Prezto, Zim, Zinit, Antigen, Homebrew, Arch, Alpine, and more — plus a manual fallback and Pure migration notes."
 ---
 
 Powerlevel10k works with every major Zsh plugin manager and framework. Most managers have a dedicated one-liner that handles installation automatically; if that approach does not work in your environment, you can always fall back to the universal manual procedure, which is compatible with any setup. This page covers per-manager installation snippets, a step-by-step fallback procedure, and notes on Pure-style compatibility.
@@ -102,12 +102,11 @@ Powerlevel10k works with every major Zsh plugin manager and framework. Most mana
     Add the following lines to `~/.zshrc`:
 
     ```zsh
-    zplugin ice depth=1
-    zplugin light romkatv/powerlevel10k
+    zplugin ice depth=1; zplugin light romkatv/powerlevel10k
     ```
 
     <Note>
-      The `depth=1` ice is optional but recommended for faster cloning. Other ice types are neither recommended nor officially supported by Powerlevel10k.
+      The `depth=1` ice is optional. Other types of ice are neither recommended nor officially supported by Powerlevel10k.
     </Note>
 
     ---
@@ -117,12 +116,11 @@ Powerlevel10k works with every major Zsh plugin manager and framework. Most mana
     Add the following lines to `~/.zshrc`:
 
     ```zsh
-    zinit ice depth=1
-    zinit light romkatv/powerlevel10k
+    zinit ice depth=1; zinit light romkatv/powerlevel10k
     ```
 
     <Note>
-      The `depth=1` ice is optional but recommended. Other ice types are neither recommended nor officially supported by Powerlevel10k.
+      The `depth=1` ice is optional. Other types of ice are neither recommended nor officially supported by Powerlevel10k.
     </Note>
 
     ---
@@ -132,12 +130,11 @@ Powerlevel10k works with every major Zsh plugin manager and framework. Most mana
     Add the following lines to `~/.zshrc`:
 
     ```zsh
-    zi ice depth=1
-    zi light romkatv/powerlevel10k
+    zi ice depth=1; zi light romkatv/powerlevel10k
     ```
 
     <Note>
-      The `depth=1` ice is optional but recommended. Other ice types are neither recommended nor officially supported by Powerlevel10k.
+      The `depth=1` ice is optional. Other types of ice are neither recommended nor officially supported by Powerlevel10k.
     </Note>
 
     ---
@@ -159,6 +156,35 @@ Powerlevel10k works with every major Zsh plugin manager and framework. Most mana
     ```zsh
     git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
     echo 'source ~/powerlevel10k/powerlevel10k.zsh-theme' >>~/.zshrc
+    ```
+  </Tab>
+  <Tab title="Package Managers">
+    ### Homebrew
+
+    ```zsh
+    brew install powerlevel10k
+    echo "source $(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme" >>~/.zshrc
+    ```
+
+    ---
+
+    ### Arch Linux
+
+    ```zsh
+    yay -S --noconfirm zsh-theme-powerlevel10k-git
+    echo 'source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme' >>~/.zshrc
+    ```
+
+    The [zsh-theme-powerlevel10k-git](https://aur.archlinux.org/packages/zsh-theme-powerlevel10k-git/) AUR package above is the official Powerlevel10k package.
+
+    ---
+
+    ### Alpine Linux
+
+    ```zsh
+    apk add zsh zsh-theme-powerlevel10k
+    mkdir -p ~/.local/share/zsh/plugins
+    ln -s /usr/share/zsh/plugins/powerlevel10k ~/.local/share/zsh/plugins/
     ```
   </Tab>
 </Tabs>
