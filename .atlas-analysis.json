@@ -1,0 +1,92 @@
+{
+  "projectType": "general",
+  "projectName": "Powerlevel10k",
+  "projectDescription": "A highly customizable, blazing-fast Zsh theme with a built-in configuration wizard, instant prompt, transient prompt, and dozens of built-in prompt segments.",
+  "theme": "aspen",
+  "primaryColor": "#AF6FD8",
+  "lightColor": "#D4A8F0",
+  "darkColor": "#7B3FA8",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "fonts"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "configuration/wizard",
+              "configuration/instant-prompt",
+              "configuration/prompt-segments",
+              "configuration/colors-and-styles",
+              "configuration/custom-segments"
+            ]
+          },
+          {
+            "group": "Prompt Features",
+            "pages": [
+              "features/transient-prompt",
+              "features/show-on-command",
+              "features/git-status",
+              "features/directory-truncation"
+            ]
+          },
+          {
+            "group": "Compatibility",
+            "pages": [
+              "compatibility/powerlevel9k",
+              "compatibility/plugin-managers"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "reference/p10k-command",
+              "reference/all-segments",
+              "reference/faq",
+              "reference/troubleshooting"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Instant prompt — displays prompt immediately on Zsh startup even when plugins are still loading",
+    "Configuration wizard — interactive `p10k configure` command to customize appearance without editing files",
+    "Transient prompt — trims previous prompts to a minimal form for cleaner scrollback",
+    "Show on command — context-sensitive segments that appear only when relevant commands are typed",
+    "Powerlevel9k compatibility — drop-in replacement that reads all POWERLEVEL9K_* config parameters",
+    "Pure compatibility — can replicate the Pure Zsh theme style",
+    "60+ built-in prompt segments — git status, AWS, Kubernetes, Python, Node.js, and many more",
+    "Extensible custom segments via public p10k segment API",
+    "Smart directory truncation — shortens paths to unique prefixes with color-coded importance",
+    "Asynchronous Git status via gitstatus daemon for zero prompt lag"
+  ],
+  "publicApiSurface": [
+    "p10k configure — launch interactive configuration wizard",
+    "p10k reload — reload prompt configuration",
+    "p10k segment — define or render a custom prompt segment",
+    "p10k display — show/hide prompt segments at runtime",
+    "p10k help — display usage information",
+    "p10k finalize — mark instant prompt initialization complete",
+    "p10k clear-instant-prompt — clear the instant prompt",
+    "POWERLEVEL9K_LEFT_PROMPT_ELEMENTS — array of left-side prompt segments",
+    "POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS — array of right-side prompt segments",
+    "POWERLEVEL9K_INSTANT_PROMPT — controls instant prompt mode (verbose/quiet/off)",
+    "POWERLEVEL9K_TRANSIENT_PROMPT — enables transient prompt (always/same-dir/off)",
+    "POWERLEVEL9K_MODE — icon set mode (nerdfont-complete, powerline, ascii, etc.)",
+    "POWERLEVEL9K_<SEGMENT>_SHOW_ON_COMMAND — regex of commands that trigger a segment",
+    "POWERLEVEL9K_<SEGMENT>_FOREGROUND / _BACKGROUND — per-segment colors",
+    "POWERLEVEL9K_CONFIG_FILE — path to the p10k config file (default ~/.p10k.zsh)",
+    "POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD — suppress auto-launch of wizard",
+    "p10k-instant-prompt-finalize — zsh function to finalize instant prompt from .zshrc"
+  ]
+}

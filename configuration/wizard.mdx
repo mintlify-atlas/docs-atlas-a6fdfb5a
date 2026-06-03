@@ -1,0 +1,116 @@
+---
+title: "Configure Powerlevel10k with the Interactive Wizard"
+sidebarTitle: "Wizard"
+description: "Use `p10k configure` to interactively choose your prompt style, icons, colors, and features — no manual file editing required."
+---
+
+The Powerlevel10k configuration wizard is the easiest way to set up your prompt. It walks you through a series of visual questions — font checks, style selection, icon density, transient prompt, and instant prompt — and then writes a fully-commented `~/.p10k.zsh` configuration file based on your answers. You can run it as many times as you like; each run overwrites the previous file.
+
+## Launching the Wizard
+
+The wizard runs automatically on the very first Zsh start after Powerlevel10k is installed, provided no `POWERLEVEL9K_*` parameters are already defined in your environment. If it does not start automatically, launch it manually:
+
+<Steps>
+  <Step title="Open a terminal">
+    Start a new Zsh session, or use an existing one.
+  </Step>
+  <Step title="Run the wizard">
+    ```zsh
+    p10k configure
+    ```
+  </Step>
+  <Step title="Answer the prompts">
+    The wizard displays sample glyphs and asks whether they render correctly. Answer honestly — your answers determine which styles are offered.
+  </Step>
+  <Step title="Choose your preferences">
+    Select a prompt style, character set, color depth, icon set, transient prompt behavior, and instant prompt mode.
+  </Step>
+  <Step title="Restart Zsh">
+    The wizard appends a `source ~/.p10k.zsh` line to `~/.zshrc` if one is not already present. Restart Zsh with `exec zsh` to apply everything cleanly.
+  </Step>
+</Steps>
+
+## Prompt Styles
+
+All styles except Pure are functionally equivalent — they display the same information and differ only in visual presentation. Install the [recommended MesloLGS NF font](https://github.com/romkatv/powerlevel10k#meslo-nerd-font-patched-for-powerlevel10k) before running the wizard to unlock all styles.
+
+<Tabs>
+  <Tab title="Lean">
+    **Lean** is a minimal, text-only style with no colored segment backgrounds. It always includes `prompt_char` — a multi-functional symbol (`❯`) that turns red on error and changes shape in vi mode. Because it relies only on foreground colors, it is monochrome-friendly and looks great on any terminal color scheme.
+
+    ```zsh
+    # Lean style: no backgrounds, always has prompt_char on line 2
+    typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(
+      dir
+      vcs
+      newline
+      prompt_char    # ❯ / ❮ / V / ▶ depending on vi mode
+    )
+    ```
+
+    Lean offers an **8 colors** variant that confines all colors to the terminal's 16-color palette (colors 0–15). This makes it fully theme-aware — switching your terminal's color palette (e.g., to Solarized Dark) changes the prompt colors accordingly.
+  </Tab>
+  <Tab title="Classic">
+    **Classic** uses the Powerline aesthetic: segments are rendered as colored blocks separated by arrow-shaped glyphs (``). It saves two characters per segment compared to Rainbow, making it a compact yet visually structured choice.
+
+    ```zsh
+    # Classic style uses Powerline separators between differently colored segments
+    typeset -g POWERLEVEL9K_LEFT_SEGMENT_SEPARATOR='\uE0B0'
+    typeset -g POWERLEVEL9K_LEFT_SUBSEGMENT_SEPARATOR='\uE0B1'
+    ```
+
+    Classic supports both Unicode (Powerline glyphs) and ASCII character sets. If your font or locale does not support Unicode, the ASCII variant replaces powerline symbols with plain ASCII characters so the prompt renders correctly everywhere.
+  </Tab>
+  <Tab title="Rainbow">
+    **Rainbow** is the most colorful style, using distinct background colors for each segment. It requires a terminal that supports at least 256 colors and a Nerd Font for the best appearance.
+
+    ```zsh
+    # Rainbow: each segment has its own vibrant background
+    typeset -g POWERLEVEL9K_DIR_BACKGROUND=4
+    typeset -g POWERLEVEL9K_DIR_FOREGROUND=254
+    typeset -g POWERLEVEL9K_VCS_CLEAN_BACKGROUND=2
+    typeset -g POWERLEVEL9K_VCS_MODIFIED_BACKGROUND=3
+    ```
+
+    In two-line configurations without a left frame, Rainbow also exposes `prompt_char` — useful if you use vi keymap and want a mode indicator that turns red on command failure.
+  </Tab>
+  <Tab title="Pure">
+    **Pure** replicates the appearance of the [Pure Zsh theme](https://github.com/sindresorhus/pure) exactly, including its quirks (no stale-status indication, same symbol in command and visual vi modes). It exists primarily for users migrating from Pure who want a drop-in visual replacement.
+
+    ```zsh
+    # Pure style: transparent background, spaces between segments, no icons
+    typeset -g POWERLEVEL9K_BACKGROUND=
+    typeset -g POWERLEVEL9K_{LEFT,RIGHT}_{LEFT,RIGHT}_WHITESPACE=
+    typeset -g POWERLEVEL9K_{LEFT,RIGHT}_SUBSEGMENT_SEPARATOR=' '
+    typeset -g POWERLEVEL9K_VISUAL_IDENTIFIER_EXPANSION=
+    ```
+
+    The **Pure → Original** color sub-variant confines colors to the terminal's 16-color palette, making it behave correctly with themed palettes such as Solarized. If you like Pure's minimalist look but want to take full advantage of Powerlevel10k features, choose Lean instead.
+  </Tab>
+</Tabs>
+
+## What the Wizard Produces
+
+After completing the wizard, `~/.p10k.zsh` contains:
+
+- `POWERLEVEL9K_LEFT_PROMPT_ELEMENTS` and `POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS` arrays listing all active segments
+- Per-segment color, icon, and format parameters — each one commented with a human-readable explanation
+- `POWERLEVEL9K_INSTANT_PROMPT` set to `verbose`, `quiet`, or `off` based on your answer
+- `POWERLEVEL9K_TRANSIENT_PROMPT` set based on your preference
+
+The file is designed to be edited by hand after generation. Every parameter is documented inline, and related parameters are grouped together.
+
+## Troubleshooting
+
+**The wizard runs every time Zsh starts.** This happens when `~/.zshrc` has a syntax error that prevents evaluation from reaching the `source ~/.p10k.zsh` line the wizard appended. Use `POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true zsh` to suppress the auto-run and see the error messages.
+
+**Some prompt styles are missing from the wizard.**
+
+- *Pure → Snazzy* requires Zsh ≥ 5.7.1 and a terminal with truecolor support (`COLORTERM=24bit` or `COLORTERM=truecolor`). Verify truecolor with `print -P '%F{#ff0000}red%f'`.
+- All styles except Lean 8-colors require a terminal capable of 256 colors. Verify with `print $terminfo[colors]`.
+- Unicode styles require a UTF-8 locale and the `MULTIBYTE` Zsh option (enabled by default). Verify with `locale -a` and `print -r -- ${options[MULTIBYTE]}`.
+- If the wizard's font-capability questions reveal that glyphs do not render, it will not offer styles that depend on those glyphs. Install the [recommended font](https://github.com/romkatv/powerlevel10k#meslo-nerd-font-patched-for-powerlevel10k) and restart your terminal, then run `p10k configure` again.
+
+<Note>
+  Configuration wizard auto-installs the recommended font (MesloLGS NF) only in iTerm2 and Termux. For other terminals, download and install the font manually, then configure the terminal to use it before running the wizard.
+</Note>

@@ -1,0 +1,131 @@
+---
+title: "Customizing Colors and Styles in Powerlevel10k"
+sidebarTitle: "Colors & Styles"
+description: "Change prompt colors by editing POWERLEVEL9K_*_FOREGROUND and _BACKGROUND parameters in ~/.p10k.zsh, or by switching your terminal color palette."
+---
+
+Powerlevel10k gives you two independent levers for controlling prompt colors: the **terminal color palette** and **`POWERLEVEL9K_*` configuration parameters**. You can use either approach alone or combine them. After making changes, run `source ~/.p10k.zsh` to apply them to the current session without restarting Zsh.
+
+## Approach 1 — Change the Terminal Color Palette
+
+Every terminal emulator lets you customize the 16 base colors (numbered 0–15) that form the "ANSI" palette. When you select a color scheme such as *Tango Dark*, *Solarized Dark*, or *Nord* in your terminal's preferences, you are remapping these 16 slots.
+
+Because Powerlevel10k uses colors 0–15 for the following prompt styles, changing the palette directly changes how those styles look:
+
+- **Rainbow** — uses terminal palette colors for the `vcs` and other segments
+- **Lean → 8 colors** — confines all segment colors to palette colors 0–7
+- **Pure → Original** — uses only palette colors
+
+Other styles (Lean with 256 colors, Classic, Rainbow with explicit color values) use fixed colors in the 16–255 range and look the same regardless of the terminal's palette.
+
+To change the palette, look for a *Colors*, *Color Scheme*, or *Appearance* section in your terminal's preferences. Common terminals:
+
+- **iTerm2**: Preferences → Profiles → Colors → Color Presets
+- **GNOME Terminal**: Preferences → (profile) → Colors
+- **Windows Terminal**: Settings → (profile) → Appearance → Color scheme
+- **Alacritty**: `colors:` section in `~/.config/alacritty/alacritty.toml`
+- **kitty**: `~/.config/kitty/kitty.conf` color settings
+
+## Approach 2 — Set POWERLEVEL9K_* Parameters
+
+Every prompt segment respects a `POWERLEVEL9K_<SEGMENT>_FOREGROUND` and `POWERLEVEL9K_<SEGMENT>_BACKGROUND` parameter. Open `~/.p10k.zsh`, search for the segment name, and adjust the values.
+
+### Numbered Colors (0–255)
+
+Colors 0–15 are terminal-palette colors — they look different depending on your terminal's color scheme.
+Colors 16–255 are fixed xterm colors — they always display the same regardless of the terminal palette.
+
+```zsh
+# Set the foreground of the 'time' segment to bright red (fixed color)
+typeset -g POWERLEVEL9K_TIME_FOREGROUND=160
+
+# Set the background of the 'dir' segment to terminal's "blue" (palette-dependent)
+typeset -g POWERLEVEL9K_DIR_BACKGROUND=4
+typeset -g POWERLEVEL9K_DIR_FOREGROUND=254
+```
+
+To see how all 256 colors look in your terminal, run this one-liner:
+
+```zsh
+for i in {0..255}; do print -Pn "%K{$i}  %k%F{$i}${(l:3::0:)i}%f " ${${(M)$((i%6)):#3}:+$'\n'}; done
+```
+
+### 24-bit Truecolor (`#RRGGBB`)
+
+If your terminal supports truecolor, you can specify any color using a CSS-style hex triplet:
+
+```zsh
+# Exact RGB values — requires terminal truecolor support
+typeset -g POWERLEVEL9K_TIME_FOREGROUND='#FF0000'
+typeset -g POWERLEVEL9K_DIR_BACKGROUND='#1C4A7A'
+```
+
+Verify truecolor support with:
+
+```zsh
+print -P '%F{#ff0000}red%f'
+```
+
+If the text appears red, your terminal has truecolor. If it appears in a different color, truecolor is not available and you should use numbered colors instead.
+
+<CodeGroup>
+```zsh Numbered color
+# Works in all 256-color terminals
+typeset -g POWERLEVEL9K_TIME_FOREGROUND=160
+```
+
+```zsh Truecolor
+# Requires terminal truecolor support
+typeset -g POWERLEVEL9K_TIME_FOREGROUND='#FF0000'
+```
+</CodeGroup>
+
+### Applying Changes
+
+```zsh
+source ~/.p10k.zsh
+```
+
+This reloads the configuration in the current session. For changes to `POWERLEVEL9K_LEFT_PROMPT_ELEMENTS` or `POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS`, use `p10k reload` instead.
+
+## Icon Mode (POWERLEVEL9K_MODE)
+
+The `POWERLEVEL9K_MODE` parameter controls which icon set Powerlevel10k uses. It is best set by `p10k configure`, but you can change it manually:
+
+| Value | Icon set |
+|-------|----------|
+| `nerdfont-complete` | Full Nerd Fonts icon set (requires Nerd Font v2) |
+| `nerdfont-v3` | Nerd Fonts v3 icon set |
+| `powerline` | Powerline-only icons (no Nerd Font required) |
+| `ascii` | Plain ASCII characters; works with any font and locale |
+
+```zsh
+typeset -g POWERLEVEL9K_MODE=nerdfont-complete
+```
+
+## VCS Loading Background
+
+When Powerlevel10k is computing Git status asynchronously, the `vcs` segment briefly displays with a grey loading background. In Rainbow style this can be hard to read. Adjust the loading color with:
+
+```zsh
+# In ~/.p10k.zsh — uncomment and change the value
+typeset -g POWERLEVEL9K_VCS_LOADING_BACKGROUND=244
+```
+
+## Rainbow Style — Directory Visibility
+
+In Rainbow style the current directory is shown as white text on a blue background. If your terminal's blue color is very light, the white text may be hard to read. Adjust the directory segment colors with these parameters in `~/.p10k.zsh`:
+
+```zsh
+typeset -g POWERLEVEL9K_DIR_BACKGROUND=4           # background (terminal "blue" by default)
+typeset -g POWERLEVEL9K_DIR_FOREGROUND=254          # regular directory text
+typeset -g POWERLEVEL9K_DIR_SHORTENED_FOREGROUND=250 # truncated path segments
+typeset -g POWERLEVEL9K_DIR_ANCHOR_FOREGROUND=255   # important (anchor) path segments
+typeset -g POWERLEVEL9K_DIR_ANCHOR_BOLD=true        # bold anchors
+```
+
+Change `POWERLEVEL9K_DIR_BACKGROUND` to a darker blue (e.g., `27`) or another color entirely for better contrast.
+
+<Note>
+  **VSCode Terminal foreground color override.** By default, VSCode Terminal applies a *minimum contrast ratio* algorithm that may replace the foreground color you set with a different one it considers more readable. To disable this behavior, open VSCode settings and set `terminal.integrated.minimumContrastRatio` to `1`. See the [VSCode documentation](https://code.visualstudio.com/docs/terminal/appearance#_minimum-contrast-ratio) for details.
+</Note>

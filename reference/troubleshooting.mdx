@@ -1,0 +1,342 @@
+---
+title: "Troubleshooting Powerlevel10k Issues"
+sidebarTitle: "Troubleshooting"
+description: "Diagnose and fix common Powerlevel10k problems: missing icons, cursor placement, prompt wrapping, plugin manager conflicts, and rendering artifacts."
+---
+
+This page covers the most common problems encountered when running Powerlevel10k, along with their root causes and proven fixes. Work through the relevant section step by step — most issues are resolved in under a minute.
+
+<AccordionGroup>
+
+<Accordion title='[oh-my-zsh] theme "powerlevel10k/powerlevel10k" not found'>
+When opening a terminal or starting Zsh manually, you may see:
+
+```text
+[oh-my-zsh] theme 'powerlevel10k/powerlevel10k' not found
+```
+
+**Step 1** — Check whether Powerlevel10k has already been loaded:
+
+```zsh
+typeset -p P9K_VERSION
+```
+
+- If this **succeeds** and prints something like `typeset P9K_VERSION=1.19.14`, the theme is loaded but Oh My Zsh is also trying to load it a second time. Remove this line from `~/.zshrc`:
+  ```zsh
+  ZSH_THEME="powerlevel10k/powerlevel10k"
+  ```
+
+- If this **fails** with `typeset: no such variable: P9K_VERSION`, the theme directory is missing. Clone it:
+  ```zsh
+  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git \
+    "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
+  ```
+
+**Step 2** — Restart Zsh:
+
+```zsh
+exec zsh
+```
+</Accordion>
+
+<Accordion title="Question mark in prompt">
+**Regular `?`** — This is normal. It means there are untracked files in the current Git repository. Run `git status` to inspect them. You can change or remove this symbol by searching for `untracked files` in `~/.p10k.zsh`.
+
+**Weird-looking `?`** — If the question mark looks wrong (garbled, boxed, or wrong glyph), your terminal font is missing the required glyphs. Install [the recommended font](https://github.com/romkatv/powerlevel10k#meslo-nerd-font-patched-for-powerlevel10k) and run `p10k configure`.
+</Accordion>
+
+<Accordion title="Icons, glyphs, or powerline symbols don't render">
+1. Restart your terminal completely (not just the shell).
+2. Install [the recommended font (MesloLGS NF)](https://github.com/romkatv/powerlevel10k#meslo-nerd-font-patched-for-powerlevel10k) and configure your terminal to use it.
+3. Run `p10k configure` to regenerate `~/.p10k.zsh` with the correct icon set.
+
+If you still see missing glyphs after these steps, verify that your terminal is actually using the new font (font names are case-sensitive in some terminals).
+</Accordion>
+
+<Accordion title="Sub-pixel imperfections around powerline symbols">
+Zsh themes do not have pixel-level control over terminal rendering. A powerline segment is composed of text on a colored background followed by a triangle glyph (U+E0B0). The visual join between the glyph and the next segment is rendered by the terminal, not by the theme. If it looks off in Powerlevel10k, it will look the same in every powerline theme (Agnoster, Powerlevel9k, Powerline, etc.).
+
+**Things to try:**
+
+- Switch to [the recommended font](https://github.com/romkatv/powerlevel10k#meslo-nerd-font-patched-for-powerlevel10k) if you haven't already.
+- Change terminal font size by one point up or down (e.g., iTerm2 renders perfectly at sizes 11 and 13 but not at 12).
+- Enable built-in powerline glyph rendering in your terminal's settings (iTerm2 supports this).
+- Adjust font hinting or anti-aliasing in terminal settings.
+- Try shifting all text one pixel in any direction if your terminal supports it.
+- Try a different terminal.
+
+**Radical solution**: Switch to a prompt style without background fills. Run `p10k configure` and select **Lean**. This style looks modern and lightweight and is immune to powerline rendering imperfections.
+</Accordion>
+
+<Accordion title="Error: character not in range">
+Run this diagnostic:
+
+```zsh
+echo '\u276F'
+```
+
+If you get `zsh: character not in range`, your locale does not support UTF-8. Fix steps:
+
+- **Over SSH**: See [this comment](https://github.com/romkatv/powerlevel10k/issues/153#issuecomment-518347833) for SSH UTF-8 locale configuration.
+- **Local terminal**: Search for "set UTF-8 locale" and your operating system name.
+</Accordion>
+
+<Accordion title="Cursor is in the wrong place">
+First, run:
+
+```zsh
+echo '\u276F'
+```
+
+If you get `zsh: character not in range`, fix your UTF-8 locale (see **Error: character not in range** above).
+
+If the command prints `❯` but the cursor is still misplaced:
+
+1. Install [the recommended font](https://github.com/romkatv/powerlevel10k#meslo-nerd-font-patched-for-powerlevel10k) and run `p10k configure`.
+2. If that doesn't help, add `unset ZLE_RPROMPT_INDENT` at the bottom of `~/.zshrc`.
+
+**Still not fixed?** Run this diagnostic to measure prompt width:
+
+```zsh
+() {
+  emulate -L zsh
+  setopt err_return no_unset
+  local text
+  print -rl -- 'Select a part of your prompt from the terminal window and paste it below.' ''
+  read -r '?Prompt: ' text
+  local -i len=${(m)#text}
+  local frame="+-${(pl.$len..-.):-}-+"
+  print -lr -- $frame "| $text |" $frame
+}
+```
+
+Paste a section of your prompt when prompted, then check the result:
+
+- **Prompt aligns with the frame** — This indicates a bug in the theme or config. Run `print -rl -- ${(eq+)PROMPT} ${(eq+)RPROMPT}` and look for stray `%{...%}` or backslash escapes.
+
+  ```text
+  +------------------------------+
+  | romka@adam ✓ ~/powerlevel10k |
+  +------------------------------+
+  ```
+
+- **Prompt is longer than the frame** — Your terminal is rendering ambiguous-width characters as double-width. This is a terminal bug or misconfiguration.
+
+  ```text
+  +-----------------------------+
+  | romka@adam ✓ ~/powerlevel10k |
+  +-----------------------------+
+  ```
+
+- **Prompt is shorter than the frame and is mangled** (e.g., missing a space after the check mark) — Could be a low-level macOS bug, or wide Unicode glyphs being rendered as narrow by Konsole, Hyper, or the integrated VSCode Terminal.
+
+  ```text
+  +------------------------------+
+  | romka@adam ✓~/powerlevel10k |
+  +------------------------------+
+  ```
+
+- **Prompt is shorter than the frame and is not mangled** — Likely a misconfigured locale.
+
+  ```text
+  +--------------------------------+
+  | romka@adam ✓ ~/powerlevel10k |
+  +--------------------------------+
+  ```
+</Accordion>
+
+<Accordion title="Prompt wrapping around in a weird way">
+This is the same root cause as **Cursor is in the wrong place**. See that section for diagnostics and fixes.
+</Accordion>
+
+<Accordion title="Right prompt is in the wrong place">
+This is the same root cause as **Cursor is in the wrong place**. See that section for diagnostics and fixes.
+</Accordion>
+
+<Accordion title="Configuration wizard runs every time Zsh starts">
+The configuration wizard runs automatically if no `POWERLEVEL9K_*` parameters are defined when Zsh starts. It creates `~/.p10k.zsh` and adds a `source` line to `~/.zshrc`. If the wizard keeps running, it means `~/.zshrc` is terminating before it reaches that `source` line — most often due to a syntax error.
+
+**To diagnose:**
+
+```zsh
+POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true zsh
+```
+
+This starts Zsh without auto-launching the wizard, so any error messages are visible. Fix the errors in `~/.zshrc`, then restart Zsh normally.
+</Accordion>
+
+<Accordion title="Some prompt styles are missing from the configuration wizard">
+The wizard hides styles it cannot render in your current environment:
+
+- **Pure style with Snazzy scheme missing** — Requires Zsh >= 5.7.1 and a truecolor terminal (`COLORTERM` must be `24bit` or `truecolor`). Verify with `print -P '%F{#ff0000}red%f'`.
+- **Non-Lean styles missing** — Requires at least 256 colors. Verify with `print $terminfo[colors]`.
+- **Unicode prompt styles missing** — Requires a UTF-8 locale. Verify with `locale -a`. Also requires `MULTIBYTE` shell option: `print -r -- ${options[MULTIBYTE]}` should output `on`.
+- **Certain glyph-based styles missing** — The wizard asks a few questions to assess your font's glyph support. If any answer indicates missing glyphs, styles that require them are hidden. Fix: restart your terminal, install [the recommended font](https://github.com/romkatv/powerlevel10k#meslo-nerd-font-patched-for-powerlevel10k), and run `p10k configure` again.
+</Accordion>
+
+<Accordion title="Cannot install the recommended font">
+Once you download the [MesloLGS NF font files](https://github.com/romkatv/powerlevel10k#meslo-nerd-font-patched-for-powerlevel10k), install them like any other font on your operating system. Search for "how to install fonts on [your OS]" if you are unsure of the process.
+
+If you are using iTerm2 or Termux, `p10k configure` can install the font for you automatically — just answer **Yes** when asked.
+</Accordion>
+
+<Accordion title="Extra or missing spaces in prompt compared to Powerlevel9k">
+When using Powerlevel10k with a Powerlevel9k config, you may notice spacing differences. These come in two forms.
+
+**Extra space on the right side of right prompt**
+
+Powerlevel10k respects the `ZLE_RPROMPT_INDENT` Zsh parameter (Powerlevel9k ignores it). By default `ZLE_RPROMPT_INDENT=1`, leaving a one-character gap at the right edge. Add this to `~/.zshrc` to eliminate it:
+
+```zsh
+ZLE_RPROMPT_INDENT=0
+```
+
+<Note>
+Some Zsh versions have bugs triggered by `ZLE_RPROMPT_INDENT=0`. If you see visual artifacts or wrong cursor positions after setting it, remove the line.
+</Note>
+
+**Extra or missing spaces around icons**
+
+Powerlevel9k has inconsistent icon spacing. Powerlevel10k fixes this inconsistency. To restore the Powerlevel9k spacing, add to `~/.zshrc`:
+
+```zsh
+POWERLEVEL9K_LEGACY_ICON_SPACING=true
+```
+
+<Note>
+Do not define `POWERLEVEL9K_LEGACY_ICON_SPACING` when using `p10k configure` to generate a fresh config.
+</Note>
+</Accordion>
+
+<Accordion title='Weird things happen after `source ~/.zshrc`'>
+Running `source ~/.zshrc` in a live shell is almost always a bad idea. It can cause random errors, misbehaving code, and progressive slowdown of Zsh. This is true regardless of which theme you use.
+
+**The correct way to apply changes to `~/.zshrc`** is to restart Zsh:
+
+```zsh
+exec zsh
+```
+
+While not a complete restart (like closing and reopening the terminal), `exec zsh` is far more reliable than `source ~/.zshrc`.
+</Accordion>
+
+<Accordion title="Transient prompt stops working after some time">
+This is caused by the same issue as running `source ~/.zshrc` in a live shell — see **Weird things happen after `source ~/.zshrc`** above. Restart Zsh with `exec zsh` to restore correct behavior.
+</Accordion>
+
+<Accordion title="Cannot make Powerlevel10k work with my plugin manager">
+If the standard installation instructions did not work, try the manual fallback:
+
+1. Disable your current theme in your plugin manager:
+   - **Oh My Zsh**: Remove the `ZSH_THEME=...` line from `~/.zshrc`.
+   - **zplug**: Remove the `zplug` line referencing your current theme.
+   - **prezto**: Add `zstyle :prezto:module:prompt theme off` to `~/.zpreztorc`.
+   - **antigen**: Remove the `antigen theme ...` line from `~/.zshrc`.
+
+2. Install Powerlevel10k manually:
+   ```zsh
+   git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
+   echo 'source ~/powerlevel10k/powerlevel10k.zsh-theme' >>~/.zshrc
+   ```
+
+This installation method works alongside any plugin manager and does not add any overhead.
+</Accordion>
+
+<Accordion title="Directory is difficult to see in prompt when using Rainbow style">
+In Rainbow style, the current directory is shown as bright white text on a blue background. If the terminal's blue color is very light, the contrast may be poor.
+
+**Fixes:**
+
+- Run `p10k configure` and choose a more readable prompt style.
+- Change your terminal's color palette (try Tango Dark or Solarized Dark, or just change the "blue" color).
+- Edit `~/.p10k.zsh` directly and adjust these parameters:
+  ```zsh
+  POWERLEVEL9K_DIR_BACKGROUND=...
+  POWERLEVEL9K_DIR_FOREGROUND=...
+  POWERLEVEL9K_DIR_SHORTENED_FOREGROUND=...
+  POWERLEVEL9K_DIR_ANCHOR_FOREGROUND=...
+  POWERLEVEL9K_DIR_ANCHOR_BOLD=...
+  ```
+</Accordion>
+
+<Accordion title="Incorrect foreground color in VSCode Terminal">
+By default, VSCode Terminal applies a minimum contrast ratio feature that may override the foreground color you have set. This behavior can be [turned off in VSCode settings](https://code.visualstudio.com/docs/terminal/appearance#_minimum-contrast-ratio) under **Terminal › Integrated: Minimum Contrast Ratio**.
+</Accordion>
+
+<Accordion title="Horrific mess when resizing terminal window">
+When you resize a terminal window horizontally, the terminal may *reflow* prompt text to fit the new width. If the vertical distance between the start of the current prompt and the cursor changes as a result, Zsh will redraw the prompt at the wrong position — causing the visual corruption.
+
+This problem is not specific to Powerlevel10k. It affects any Zsh prompt when the terminal reflows text on resize.
+
+**Mitigation options (from most to least effective):**
+
+1. **Use kitty >= 0.24.0** with terminal-shell integration enabled:
+   ```zsh
+   typeset -g POWERLEVEL9K_TERM_SHELL_INTEGRATION=true
+   ```
+
+2. **Apply the Zsh patch** from [romkatv/zsh fix-winchanged](https://github.com/romkatv/zsh/tree/fix-winchanged) and rebuild Zsh from source. This works on terminals that reflow the saved cursor position along with text.
+
+3. **Disable text reflow on resize** in your terminal's settings (not all terminals offer this option).
+
+4. **Reduce prompt height** to minimize the chance of vertical distance changing:
+   ```zsh
+   typeset -g POWERLEVEL9K_SHOW_RULER=false
+   typeset -g POWERLEVEL9K_MULTILINE_FIRST_PROMPT_GAP_CHAR=' '
+   typeset -g POWERLEVEL9K_MULTILINE_FIRST_PROMPT_SUFFIX=''
+   typeset -g POWERLEVEL9K_MULTILINE_NEWLINE_PROMPT_SUFFIX=''
+   typeset -g POWERLEVEL9K_MULTILINE_LAST_PROMPT_SUFFIX=''
+   typeset -g POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=()
+   ```
+</Accordion>
+
+<Accordion title="Icons cut off in Konsole">
+Konsole clips the right side of glyphs that are wider than a single character cell. This affects any non-monospace font. Mitigation options:
+
+1. **Use a different terminal.** Konsole is the only terminal that exhibits this clipping behavior.
+2. **Use a monospace font** such as [the recommended font](https://github.com/romkatv/powerlevel10k#meslo-nerd-font-patched-for-powerlevel10k).
+3. **Add a trailing space** to the affected icon. For example, for `os_icon`:
+   ```zsh
+   typeset -g POWERLEVEL9K_OS_ICON_CONTENT_EXPANSION='${P9K_CONTENT} '  # extra space at the end
+   ```
+4. **Use a text fallback** instead of the glyph. For example, for the Arch Linux logo:
+   ```zsh
+   typeset -g POWERLEVEL9K_LINUX_ARCH_ICON='Arch'
+   ```
+5. **Disable the segment** entirely by removing the segment name from `POWERLEVEL9K_LEFT_PROMPT_ELEMENTS` and `POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS`.
+</Accordion>
+
+<Accordion title="Arch Linux logo has a dot in the bottom right corner">
+Some fonts include an incorrect dotted Arch Linux logo in their bold typeface. Two fixes:
+
+1. **Switch to a correct font**, such as [the recommended font](https://github.com/romkatv/powerlevel10k#meslo-nerd-font-patched-for-powerlevel10k), which has the correct logo.
+
+2. **Render the icon in regular (non-bold) typeface**. Open `~/.p10k.zsh`, find `POWERLEVEL9K_OS_ICON_CONTENT_EXPANSION`, and remove `%B`:
+   ```zsh
+   typeset -g POWERLEVEL9K_OS_ICON_CONTENT_EXPANSION='${P9K_CONTENT}'  # not bold
+   ```
+</Accordion>
+
+<Accordion title="Incorrect git status in prompt">
+Powerlevel10k uses [gitstatusd](https://github.com/romkatv/gitstatus), which is backed by [libgit2](https://github.com/libgit2/libgit2). Libgit2 has some gaps relative to the full `git` implementation that can cause discrepancies between what `git status` shows and what appears in the prompt.
+
+The most notable limitation is that [libgit2 does not support `skipHash`](https://github.com/libgit2/libgit2/issues/6531). If you see incorrect git status, check your config:
+
+```zsh
+git config -l | grep skip
+```
+
+If `skipHash` is enabled (possibly implicitly, via a feature like `manyFiles`), consider disabling it:
+
+```zsh
+git config --global --unset index.skipHash
+```
+
+Or per-repository:
+
+```zsh
+git config --unset index.skipHash
+```
+</Accordion>
+
+</AccordionGroup>

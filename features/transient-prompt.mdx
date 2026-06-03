@@ -1,0 +1,102 @@
+---
+title: "Transient Prompt: Cleaner Terminal Scrollback"
+sidebarTitle: "Transient Prompt"
+description: "Enable Powerlevel10k transient prompt to collapse accepted command lines to a minimal form, making it easier to copy-paste series of commands from scrollback."
+---
+
+Transient prompt is a Powerlevel10k feature that replaces your full prompt with a minimal one — just the prompt symbol — whenever you accept a command line by pressing ENTER. The rich, multi-segment prompt remains visible while you are typing, but once you run a command it collapses out of the way, keeping your terminal scrollback clean and easy to scan.
+
+## What transient prompt does
+
+When you hit ENTER, Powerlevel10k trims the previous prompt down to its simplest form. Only the prompt character (e.g., `❯`) remains in the scrollback; all other segments such as the directory path, Git status, timestamps, and cloud-context indicators are removed. The full prompt reappears for the next command you type, so you never lose any context while working — you only lose the clutter in history.
+
+This makes it dramatically easier to copy-paste a series of commands from your terminal scrollback, because there is very little visual noise between the command lines.
+
+## How to enable transient prompt
+
+<Steps>
+  <Step title="Run the configuration wizard">
+    The easiest way to enable transient prompt is through the interactive setup wizard. Type:
+
+    ```zsh
+    p10k configure
+    ```
+
+    Follow the prompts until you reach the **Transient Prompt** question and select **Yes**.
+  </Step>
+
+  <Step title="Or set the parameter directly in ~/.p10k.zsh">
+    Open `~/.p10k.zsh` in your editor, find the `POWERLEVEL9K_TRANSIENT_PROMPT` parameter (it is
+    set near the bottom of the file), and change its value:
+
+    ```zsh
+    # Trim down prompt when accepting a command line.
+    # Supported values:
+    #   - off:      Don't change prompt when accepting a command line.
+    #   - always:   Trim down prompt when accepting a command line.
+    #   - same-dir: Trim down prompt when accepting a command line unless this is the first command
+    #               typed after changing current working directory.
+    typeset -g POWERLEVEL9K_TRANSIENT_PROMPT=always
+    ```
+
+    After saving the file, apply the change with:
+
+    ```zsh
+    exec zsh
+    ```
+  </Step>
+</Steps>
+
+## Parameter values
+
+| Value | Behaviour |
+|---|---|
+| `off` | Transient prompt is disabled. Prompt is never changed after you press ENTER. |
+| `always` | Prompt is trimmed to the prompt symbol every time you accept a command line. |
+| `same-dir` | Prompt is trimmed unless this is the first command typed after changing the current working directory, allowing you to see where you navigated to. |
+
+## Combining transient prompt with two-line prompts
+
+<Tip>
+  If you enable transient prompt, take advantage of a **two-line prompt**. You get the benefit of extra
+  horizontal space for typing long commands — normally the downside of two-line prompts is that
+  they consume twice as many lines in scrollback — but with transient prompt enabled each accepted
+  command collapses to a single line, eliminating that drawback entirely. All commands also start
+  from the same left offset, making the scrollback easier to read at a glance.
+</Tip>
+
+## Combining transient prompt with sparse prompts
+
+<Tip>
+  A **sparse prompt** (one with an empty line before the prompt symbol) gives your eyes a clear
+  visual boundary between command outputs and the next prompt while you are working. Transient
+  prompt removes those blank lines from the scrollback, so you get the best of both worlds: a
+  spacious working environment and a compact history.
+</Tip>
+
+## Reloading your configuration
+
+<Warning>
+  **Do not use `source ~/.zshrc`** when transient prompt is enabled. Running `source ~/.zshrc`
+  in a session that has transient prompt active can break the feature and cause other unexpected
+  behaviour. Use one of these alternatives instead:
+
+  ```zsh
+  # Reload Powerlevel10k config only (fastest):
+  p10k reload
+
+  # Restart the entire Zsh process (most reliable):
+  exec zsh
+  ```
+</Warning>
+
+## Troubleshooting: transient prompt stops working
+
+If transient prompt stops responding after some time in a session, the most likely cause is that
+`source ~/.zshrc` was run (perhaps by a tool or plugin that reloads Zsh configuration
+automatically). Because re-sourcing `.zshrc` in a running session can leave Zsh in an inconsistent
+state, the Zsh Line Editor (ZLE) widgets that power transient prompt may become unregistered or
+overwritten.
+
+The fix is the same as the prevention: always use `exec zsh` to restart Zsh cleanly, or `p10k reload`
+to reload only the Powerlevel10k configuration without restarting the shell.

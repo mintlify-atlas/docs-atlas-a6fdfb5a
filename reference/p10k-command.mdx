@@ -1,0 +1,275 @@
+---
+title: "p10k Command Reference"
+sidebarTitle: "p10k Command"
+description: "Complete reference for the p10k CLI command — subcommands configure, reload, segment, display, help, finalize, and clear-instant-prompt."
+---
+
+The `p10k` command is the single user-facing CLI installed by Powerlevel10k. It exposes every runtime capability of the theme — from launching the configuration wizard to controlling which prompt segments are visible — through a set of well-defined subcommands. All Powerlevel10k configuration is read from `~/.p10k.zsh`, and `p10k` is your primary tool for generating, reloading, and dynamically adjusting that configuration without restarting your shell.
+
+## Subcommands
+
+### p10k configure
+
+Launches the interactive configuration wizard, which walks you through a series of visual questions and writes a fully-commented `~/.p10k.zsh` based on your answers. If the wizard has already run before, the file is overwritten.
+
+<CodeGroup>
+```zsh Usage
+p10k configure
+```
+</CodeGroup>
+
+<Note>
+The wizard runs automatically on the first Zsh startup if no `POWERLEVEL9K_*` parameters are defined. Set `POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true` in `~/.zshrc` to suppress this auto-launch.
+</Note>
+
+The output path for the generated config can be overridden with the `POWERLEVEL9K_CONFIG_FILE` environment variable:
+
+```zsh
+POWERLEVEL9K_CONFIG_FILE=~/.config/zsh/p10k.zsh p10k configure
+```
+
+---
+
+### p10k reload
+
+Re-applies the prompt configuration. You must call this after modifying any `POWERLEVEL9K_*` parameter in an already-running interactive shell (as opposed to editing `~/.p10k.zsh` before a new session).
+
+<CodeGroup>
+```zsh Usage
+p10k reload
+```
+</CodeGroup>
+
+<Tip>
+Set `POWERLEVEL9K_DISABLE_HOT_RELOAD=false` in `~/.p10k.zsh` to enable automatic reload whenever a `POWERLEVEL9K_*` parameter changes. This eliminates the need to call `p10k reload` manually, at the cost of a marginally slower prompt.
+</Tip>
+
+---
+
+### p10k segment
+
+Renders a single user-defined prompt segment. This command is designed to be called **inside a custom `prompt_<name>` function** during prompt rendering — it cannot be used from the command line directly.
+
+<CodeGroup>
+```zsh Usage
+p10k segment [-h] [{+|-}re] [-s STATE] [-b BG] [-f FG] [-i ICON] [-c COND] [-t TEXT]
+```
+
+```zsh Example: "core" segment
+zmodload -F zsh/stat b:zstat
+
+function prompt_core() {
+  local size=()
+  if ! zstat -A size +size core 2>/dev/null; then
+    # No 'core' file in the current directory.
+    return
+  fi
+  if [[ -w . ]]; then
+    local state=DELETABLE
+  else
+    local state=PROTECTED
+  fi
+  p10k segment -s $state -i '⭐' -f blue -t ${size[1]}b
+}
+```
+</CodeGroup>
+
+To enable a custom segment named `core`, add `core` to `POWERLEVEL9K_LEFT_PROMPT_ELEMENTS` or `POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS` in `~/.p10k.zsh`.
+
+#### Options
+
+| Flag | Description |
+|------|-------------|
+| `-s STATE` | Segment state suffix (uppercase). Different states can have different colors and icons via `POWERLEVEL9K_<NAME>_<STATE>_FOREGROUND` etc. İ is normalized to I. |
+| `-b BG` | Background color. Accepts a color name (`blue`), 0–255 index, or `#RRGGBB`. An empty value means transparent. Default is black (`0`). |
+| `-f FG` | Foreground color. Same format as `-b`. Empty means the terminal default. |
+| `-i ICON` | Icon or glyph displayed before the text content. |
+| `-r` | Treat the icon as a symbolic reference (e.g., `LOCK_ICON`) to be resolved by Powerlevel10k. |
+| `+r` | Icon is already resolved and should be printed literally (default). |
+| `-e` | The text content (`-t`) undergoes parameter expansion and process substitution. Advanced feature — use with caution. |
+| `+e` | Do not expand text content (default). |
+| `-c COND` | Condition: if this expression expands to an empty string or `false`, the segment is hidden. Defaults to `1` (always shown). |
+| `-t TEXT` | Main text content of the segment. Undergoes prompt expansion (e.g., `%F{blue}%*%f`). Default is empty. |
+| `-h` | Print usage help and exit. |
+
+<Warning>
+`p10k segment` can only be called during prompt rendering (inside a `prompt_<name>` function). Calling it outside this context prints an error and returns non-zero.
+</Warning>
+
+---
+
+### p10k display
+
+Shows, hides, or toggles individual prompt parts at runtime without editing `~/.p10k.zsh`. Changes take effect immediately in ZLE (the line editor), making this ideal for key bindings.
+
+<CodeGroup>
+```zsh Syntax
+# Set or toggle state
+p10k display part-pattern=state-list...
+
+# Dump current state
+p10k display -a [part-pattern]...
+
+# Redisplay prompt
+p10k display -r
+```
+
+```zsh Toggle right prompt with Ctrl+P
+function toggle-right-prompt() { p10k display '*/right'=hide,show; }
+zle -N toggle-right-prompt
+bindkey '^P' toggle-right-prompt
+```
+
+```zsh Print state of all prompt parts
+typeset -A reply
+p10k display -a '*'
+printf '%-32s = %q\n' ${(@kv)reply} | sort
+```
+</CodeGroup>
+
+#### Options
+
+| Flag | Description |
+|------|-------------|
+| `-r` | Redisplay (reset) the prompt. |
+| `-a` | Dump the current display state into the `reply` associative array. |
+| `-h` | Print help and exit. |
+| `NAME=show` | Show the named part. |
+| `NAME=hide` | Hide the named part. |
+| `NAME=show,hide` | Cycle through the listed states on each invocation. |
+
+#### Part names
+
+| Pattern | Matches |
+|---------|---------|
+| `empty_line` | The empty separator line between prompts |
+| `ruler` | The ruler line (if configured) |
+| `N` | Entire prompt line N (1-based; negative counts from bottom) |
+| `N/left` | Left prompt on line N |
+| `N/right` | Right prompt on line N |
+| `N/gap` | Gap between left and right prompts on line N |
+| `N/left_frame` | Left frame on line N |
+| `N/right_frame` | Right frame on line N |
+| `N/left/S` | Segment S within the left prompt on line N |
+| `N/right/S` | Segment S within the right prompt on line N |
+
+Glob patterns are accepted for part names. For example, `*/kubecontext` matches every `kubecontext` segment regardless of which prompt line it is on.
+
+---
+
+### p10k help
+
+Prints usage documentation for `p10k` or for a specific subcommand.
+
+<CodeGroup>
+```zsh Usage
+p10k help            # overall usage
+p10k help segment    # segment subcommand reference
+p10k help display    # display subcommand reference
+p10k help configure  # configure subcommand reference
+p10k help reload     # reload subcommand reference
+```
+</CodeGroup>
+
+---
+
+### p10k finalize
+
+Marks the end of the instant-prompt initialization phase. This is called internally — Powerlevel10k's instant-prompt snippet adds it to `~/.zshrc` automatically. You do not need to call it manually.
+
+```zsh
+# Added automatically by p10k configure at the bottom of ~/.zshrc
+p10k finalize
+```
+
+<Note>
+Calling `p10k finalize` outside of the instant prompt context (i.e., when instant prompt is not active) is a no-op. Calling it with the wrong argument prints an error.
+</Note>
+
+---
+
+### p10k clear-instant-prompt
+
+Clears any content that was printed by the instant prompt. Useful if you need to programmatically remove the placeholder prompt that appears before Zsh has fully initialized.
+
+```zsh
+p10k clear-instant-prompt
+```
+
+This command is safe to call even when instant prompt is not active — it simply returns `0`.
+
+---
+
+## Key Configuration Variables
+
+The following `POWERLEVEL9K_*` parameters govern the overall behaviour of the theme. Set them in `~/.p10k.zsh` (generated by `p10k configure`) or in `~/.zshrc` before sourcing the theme.
+
+<ParamField body="POWERLEVEL9K_LEFT_PROMPT_ELEMENTS" type="array">
+  Ordered list of segment names to display on the left side of the prompt. Example:
+  ```zsh
+  typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(
+    os_icon dir vcs prompt_char
+  )
+  ```
+</ParamField>
+
+<ParamField body="POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS" type="array">
+  Ordered list of segment names to display on the right side of the prompt. Example:
+  ```zsh
+  typeset -g POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(
+    status command_execution_time context time
+  )
+  ```
+</ParamField>
+
+<ParamField body="POWERLEVEL9K_INSTANT_PROMPT" type="string" default="verbose">
+  Controls the instant prompt feature.
+
+  - `verbose` — enables instant prompt and prints a warning when console output is detected during initialization.
+  - `quiet` — enables instant prompt without the warning.
+  - `off` — disables instant prompt entirely.
+</ParamField>
+
+<ParamField body="POWERLEVEL9K_TRANSIENT_PROMPT" type="string" default="off">
+  Controls the transient prompt feature, which replaces previous prompts with a condensed version to reduce scrollback clutter.
+
+  - `always` — always use transient prompt.
+  - `same-dir` — use transient prompt only when staying in the same directory.
+  - `off` — disabled.
+</ParamField>
+
+<ParamField body="POWERLEVEL9K_MODE" type="string" default="nerdfont-complete">
+  Determines which icon set is used.
+
+  - `nerdfont-complete` — all Nerd Fonts glyphs.
+  - `nerdfont-v3` — Nerd Fonts v3 glyphs.
+  - `powerline` — Powerline symbols only.
+  - `ascii` — ASCII-only; works with every font.
+</ParamField>
+
+<ParamField body="POWERLEVEL9K_CONFIG_FILE" type="string" default="~/.p10k.zsh">
+  Path to the configuration file written by `p10k configure`. Override this to use a different location.
+</ParamField>
+
+<ParamField body="POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD" type="boolean" default="false">
+  Set to `true` to prevent the configuration wizard from launching automatically when no `POWERLEVEL9K_*` parameters are defined.
+</ParamField>
+
+<ParamField body="POWERLEVEL9K_DISABLE_HOT_RELOAD" type="boolean" default="true">
+  Set to `false` to enable automatic prompt refresh whenever a `POWERLEVEL9K_*` parameter is changed, without needing to call `p10k reload`. Adds a small overhead to every prompt.
+</ParamField>
+
+<ParamField body="POWERLEVEL9K_<SEGMENT>_SHOW_ON_COMMAND" type="string">
+  An ERE regex. When set, the named segment is shown only while the command currently being typed matches this regex. Example:
+  ```zsh
+  typeset -g POWERLEVEL9K_KUBECONTEXT_SHOW_ON_COMMAND='kubectl|helm|kubens'
+  ```
+</ParamField>
+
+<ParamField body="POWERLEVEL9K_<SEGMENT>_FOREGROUND / _BACKGROUND" type="string | integer">
+  Per-segment color overrides. Colors can be specified as a 0–255 index or as a `#RRGGBB` hex string (requires truecolor terminal).
+  ```zsh
+  typeset -g POWERLEVEL9K_TIME_FOREGROUND=160
+  typeset -g POWERLEVEL9K_DIR_BACKGROUND='#005fd7'
+  ```
+</ParamField>

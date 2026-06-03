@@ -1,0 +1,445 @@
+---
+title: "Powerlevel10k Frequently Asked Questions"
+sidebarTitle: "FAQ"
+description: "Answers to common questions about Powerlevel10k: performance, git status, colors, plugin managers, Powerlevel9k, and more."
+---
+
+This page collects the most common questions about Powerlevel10k, drawn directly from the official documentation. Topics range from day-to-day tasks like updating or changing colors, to deeper questions about the relationship with Powerlevel9k and the mechanics of instant prompt.
+
+<AccordionGroup>
+
+<Accordion title="How do I update Powerlevel10k?">
+The update command depends on how Powerlevel10k was installed.
+
+| Installation | Update command |
+|---|---|
+| Manual | `git -C ~/powerlevel10k pull` |
+| Oh My Zsh | `git -C "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k" pull` |
+| Prezto | `zprezto-update` |
+| Zim | `zimfw update` |
+| Antigen | `antigen update` |
+| Antidote | `antidote update` |
+| Zplug | `zplug update` |
+| Zgen | `zgen update` |
+| Zplugin | `zplugin update` |
+| Zinit | `zinit update` |
+| Zi | `zi update` |
+| Zap | `zap update` |
+| Homebrew | `brew update && brew upgrade` |
+| Arch Linux | `yay -S --noconfirm zsh-theme-powerlevel10k-git` |
+| Alpine Linux | `apk update && apk upgrade` |
+
+**Important**: Restart Zsh after updating. Use `exec zsh` rather than `source ~/.zshrc`.
+</Accordion>
+
+<Accordion title="How do I uninstall Powerlevel10k?">
+Follow these steps in order:
+
+1. Remove all references to `p10k` from `~/.zshrc`. The configuration wizard adds a snippet at the top:
+   ```zsh
+   if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+     source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+   fi
+   ```
+   And at the bottom:
+   ```zsh
+   [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+   ```
+   Remove both.
+
+2. Remove all references to `powerlevel10k` from `~/.zshrc`, `~/.zpreztorc`, and `~/.zimrc`.
+
+3. Verify no references remain:
+   ```zsh
+   grep -E 'p10k|powerlevel10k' ~/.zshrc ~/.zpreztorc ~/.zimrc 2>/dev/null
+   ```
+
+4. Delete the configuration file:
+   ```zsh
+   rm -f ~/.p10k.zsh
+   ```
+
+5. Delete the source files. The command depends on your installation method:
+
+   | Installation | Uninstall command |
+   |---|---|
+   | Manual | `rm -rf ~/powerlevel10k` |
+   | Oh My Zsh | `rm -rf -- "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"` |
+   | Prezto | n/a |
+   | Zim | `zimfw uninstall` |
+   | Antigen | `antigen purge romkatv/powerlevel10k` |
+   | Antidote | `antidote purge romkatv/powerlevel10k` |
+   | Zplug | `zplug clean` |
+   | Zgen | `zgen reset` |
+   | Zplugin | `zplugin delete romkatv/powerlevel10k` |
+   | Zinit | `zinit delete romkatv/powerlevel10k` |
+   | Zi | `zi delete romkatv/powerlevel10k` |
+   | Zap | `zsh -ic 'zap clean'` |
+   | Homebrew | `brew uninstall powerlevel10k` |
+   | Arch Linux | `yay -R --noconfirm zsh-theme-powerlevel10k-git` |
+   | Alpine Linux | `apk del zsh-theme-powerlevel10k` |
+
+6. Restart Zsh with `exec zsh` (do not use `source ~/.zshrc`).
+
+7. Delete cache files:
+   ```zsh
+   rm -rf -- "${XDG_CACHE_HOME:-$HOME/.cache}"/p10k-*(N) "${XDG_CACHE_HOME:-$HOME/.cache}"/gitstatus
+   ```
+</Accordion>
+
+<Accordion title="How do I install Powerlevel10k on a machine without Internet access?">
+1. On the **offline** machine, run:
+   ```sh
+   uname -sm | tr '[A-Z]' '[a-z]'
+   ```
+
+2. On a **machine with Internet access**, replace `target_uname` with the output from step 1:
+   ```sh
+   target_uname="replace this with the output of the previous command"
+   git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
+   GITSTATUS_CACHE_DIR="$HOME"/powerlevel10k/gitstatus/usrbin \
+     ~/powerlevel10k/gitstatus/install -f \
+     -s "${target_uname% *}" -m "${target_uname#* }"
+   ```
+
+3. Copy `~/powerlevel10k` from the online machine to the offline machine.
+
+4. On the offline machine, add the source line to `~/.zshrc`:
+   ```zsh
+   echo 'source ~/powerlevel10k/powerlevel10k.zsh-theme' >>~/.zshrc
+   ```
+
+5. If `~/.zshrc` sets `ZSH_THEME`, remove that line:
+   ```zsh
+   sed -i.bak '/^ZSH_THEME=/d' ~/.zshrc
+   ```
+
+To update, remove `~/powerlevel10k` on both machines and repeat steps 1–3.
+</Accordion>
+
+<Accordion title="Where can I ask for help and report bugs?">
+The best way to ask for help and report bugs is to [open an issue on GitHub](https://github.com/romkatv/powerlevel10k/issues).
+
+[Gitter](https://gitter.im/powerlevel10k/community) is another option for real-time discussion.
+
+If all else fails, email roman.perepelitsa@gmail.com. For sensitive communication, encrypt with the [project's PGP key](https://api.github.com/users/romkatv/gpg_keys).
+
+<Note>
+The project currently has very limited support. Most bug reports will go unfixed and help requests may be ignored. Check existing issues before opening a new one.
+</Note>
+</Accordion>
+
+<Accordion title="Which aspects of shell and terminal does Powerlevel10k affect?">
+Powerlevel10k defines **prompt and nothing else**. It sets prompt-related options and the `PS1` and `RPS1` parameters.
+
+Everything Powerlevel10k does **not** affect:
+
+- Terminal window/tab title
+- Colors used by `ls`
+- The behavior of `git`
+- Tab completion content and style
+- Command line colors (syntax highlighting, autosuggestions, etc.)
+- Key bindings
+- Aliases
+- Prompt parameters other than `PS1` and `RPS1`
+- Zsh options other than those related to prompting
+- The set of available commands — the only exception is the `p10k` command itself
+</Accordion>
+
+<Accordion title="I'm using Powerlevel9k with Oh My Zsh. How do I migrate?">
+Run this single command block:
+
+```zsh
+# Add powerlevel10k to the list of Oh My Zsh themes.
+git clone --depth=1 https://github.com/romkatv/powerlevel10k.git \
+  "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
+
+# Replace ZSH_THEME="powerlevel9k/powerlevel9k" with "powerlevel10k/powerlevel10k".
+sed -i.bak 's/powerlevel9k/powerlevel10k/g' ~/.zshrc
+
+# Restart Zsh.
+exec zsh
+```
+
+All existing `POWERLEVEL9K_*` configuration parameters continue to work without modification. Optionally, install [the recommended font](https://github.com/romkatv/powerlevel10k#meslo-nerd-font-patched-for-powerlevel10k) and run `p10k configure` to choose a new prompt style.
+</Accordion>
+
+<Accordion title="Is it really fast?">
+Yes. See [zsh-bench](https://github.com/romkatv/zsh-bench) for a rigorous benchmark, or watch direct comparisons with [Powerlevel9k](https://asciinema.org/a/NHRjK3BMePw66jtRVY2livHwZ) and [Spaceship](https://asciinema.org/a/253094).
+
+Powerlevel10k is designed so that pressing Enter always produces the next prompt instantly. There is no prompt lag regardless of which segments are enabled or how complex the current directory is.
+</Accordion>
+
+<Accordion title="How do I configure instant prompt?">
+Instant prompt eliminates Zsh startup lag even when slow plugins are loaded. Enable it by adding this snippet **at the very top** of `~/.zshrc`:
+
+```zsh
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+```
+
+Copy these lines verbatim. Do not replace `source` with anything else, call `zcompile`, or redirect output.
+
+When instant prompt is active, stdin is redirected to `/dev/null` and stdout/stderr go to a temporary file for the duration of initialization. Once Zsh is fully initialized, the descriptors are restored and the buffered output is printed.
+
+Control verbosity via `POWERLEVEL9K_INSTANT_PROMPT` in `~/.p10k.zsh`:
+
+- `verbose` (default) — prints a warning when console output is detected during initialization.
+- `quiet` — silences the warning without suppressing the output.
+- `off` — disables instant prompt completely.
+
+<Note>
+Instant prompt requires Zsh >= 5.4. Enabling it on an older version is harmless — it simply has no effect.
+</Note>
+</Accordion>
+
+<Accordion title="How do I initialize direnv when using instant prompt?">
+When instant prompt is enabled, add **one line before and one line after** the instant prompt block in `~/.zshrc`:
+
+```zsh
+(( ${+commands[direnv]} )) && emulate zsh -c "$(direnv export zsh)"
+
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+(( ${+commands[direnv]} )) && emulate zsh -c "$(direnv hook zsh)"
+```
+
+The first line applies the current environment export before the instant prompt captures output. The second line registers the direnv hook after initialization completes.
+</Accordion>
+
+<Accordion title="How do I export GPG_TTY when using instant prompt?">
+Add this line anywhere in `~/.zshrc`:
+
+```zsh
+export GPG_TTY=$TTY
+```
+
+This works whether instant prompt is enabled or not, and even without Powerlevel10k. It is also significantly faster than the commonly used `export GPG_TTY=$(tty)` because it avoids spawning a subshell.
+</Accordion>
+
+<Accordion title="What do different symbols in Git status mean?">
+When using Lean, Classic, or Rainbow style, Git status may look like:
+
+```text
+feature:master wip ⇣42⇡42 ⇠42⇢42 *42 merge ~42 +42 !42 ?42
+```
+
+| Symbol | Meaning | Source |
+|--------|---------|--------|
+| `feature` | current branch; replaced with `#tag` or `@commit` if not on a branch | `git status --ignore-submodules=dirty` |
+| `master` | remote tracking branch; shown only when different from local | `git rev-parse --abbrev-ref --symbolic-full-name @{upstream}` |
+| `wip` | latest commit summary contains "wip" or "WIP" | `git show --pretty=%s --no-patch HEAD` |
+| `=` | up to date with the remote | `git rev-list --count HEAD...@{upstream}` |
+| `⇣42` | this many commits behind the remote | `git rev-list --right-only --count HEAD...@{upstream}` |
+| `⇡42` | this many commits ahead of the remote | `git rev-list --left-only --count HEAD...@{upstream}` |
+| `⇠42` | this many commits behind the push remote | `git rev-list --right-only --count HEAD...@{push}` |
+| `⇢42` | this many commits ahead of the push remote | `git rev-list --left-only --count HEAD...@{push}` |
+| `*42` | this many stashes | `git stash list` |
+| `merge` | repository state | `git status --ignore-submodules=dirty` |
+| `~42` | this many merge conflicts | `git status --ignore-submodules=dirty` |
+| `+42` | this many staged changes | `git status --ignore-submodules=dirty` |
+| `!42` | this many unstaged changes | `git status --ignore-submodules=dirty` |
+| `?42` | this many untracked files | `git status --ignore-submodules=dirty` |
+| `─` | count of staged/unstaged/untracked files is unknown | `echo $POWERLEVEL9K_VCS_MAX_INDEX_SIZE_DIRTY` |
+</Accordion>
+
+<Accordion title="How do I change the format of Git status?">
+Open `~/.p10k.zsh`, search for `my_git_formatter`, and edit its source code directly. The function is fully commented and controls every detail of what the `vcs` segment displays.
+</Accordion>
+
+<Accordion title="Why is Git status from $HOME/.git not displayed in prompt?">
+When using Lean, Classic, or Rainbow style, `~/.p10k.zsh` contains this parameter by default:
+
+```zsh
+# Don't show Git status in prompt for repositories whose workdir matches this pattern.
+# For example, if set to '~', the Git repository at $HOME/.git will be ignored.
+# Multiple patterns can be combined with '|': '~(|/foo)|/bar/baz/*'.
+typeset -g POWERLEVEL9K_VCS_DISABLED_WORKDIR_PATTERN='~'
+```
+
+To see Git status for `$HOME/.git`, open `~/.p10k.zsh` and remove (or comment out) the `POWERLEVEL9K_VCS_DISABLED_WORKDIR_PATTERN` parameter.
+</Accordion>
+
+<Accordion title="Why does Git status sometimes appear grey and then get colored after a short period?">
+When Git status in the prompt is greyed out, it means Powerlevel10k is computing up-to-date Git status in the background. The prompt refreshes automatically when the computation completes.
+
+If computing Git status takes longer than `POWERLEVEL9K_VCS_MAX_SYNC_LATENCY_SECONDS` (default: 10 milliseconds), Powerlevel10k displays the last known status in grey and continues updating asynchronously.
+
+In Rainbow style, the loading background can be hard to read. To adjust it, open `~/.p10k.zsh`, find `POWERLEVEL9K_VCS_LOADING_BACKGROUND`, and change the value:
+
+```zsh
+typeset -g POWERLEVEL9K_VCS_LOADING_BACKGROUND=244
+```
+
+Run `source ~/.p10k.zsh` to apply the change to your current session.
+</Accordion>
+
+<Accordion title="How do I add username and/or hostname to prompt?">
+Open `~/.p10k.zsh` and ensure `context` is in `POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS` (it is included but governed by a condition by default). Then find this block:
+
+```zsh
+# Don't show context unless running with privileges or in SSH.
+# Tip: Remove the next line to always show context.
+typeset -g POWERLEVEL9K_CONTEXT_{DEFAULT,SUDO}_{CONTENT,VISUAL_IDENTIFIER}_EXPANSION=
+```
+
+Remove or comment out the last line to always show `username@hostname`. You can also adjust nearby parameters to change the display format or colors, or move `context` to `POWERLEVEL9K_LEFT_PROMPT_ELEMENTS`.
+</Accordion>
+
+<Accordion title="Why do some prompt segments appear and disappear while typing?">
+Segments configured with `POWERLEVEL9K_<SEGMENT>_SHOW_ON_COMMAND` are shown only when the command you are currently typing matches a given pattern. For example:
+
+```zsh
+# Show prompt segment "kubecontext" only when the command you are typing invokes kubectl, helm, or kubens.
+typeset -g POWERLEVEL9K_KUBECONTEXT_SHOW_ON_COMMAND='kubectl|helm|kubens'
+```
+
+To disable this behavior, open `~/.p10k.zsh`, search for `SHOW_ON_COMMAND`, and either remove those parameters (to always show the segment) or change their values.
+
+You can also define a toggle function to switch between always-shown and on-command modes at runtime:
+
+```zsh
+function kube-toggle() {
+  if (( ${+POWERLEVEL9K_KUBECONTEXT_SHOW_ON_COMMAND} )); then
+    unset POWERLEVEL9K_KUBECONTEXT_SHOW_ON_COMMAND
+  else
+    POWERLEVEL9K_KUBECONTEXT_SHOW_ON_COMMAND='kubectl|helm|kubens'
+  fi
+  p10k reload
+  if zle; then
+    zle push-input
+    zle accept-line
+  fi
+}
+
+zle -N kube-toggle
+bindkey '^]' kube-toggle  # ctrl-] to toggle
+```
+</Accordion>
+
+<Accordion title="How do I change prompt colors?">
+There are two approaches:
+
+**1. Change your terminal's color palette**
+
+This affects colors 0–15. For the change to be visible in your prompt, use a style that references low-numbered colors: Rainbow, Lean → 8 colors, or Pure → Original.
+
+**2. Set colors in `~/.p10k.zsh`**
+
+Open `~/.p10k.zsh` and search for "color", "foreground", or "background". For example:
+
+```zsh
+typeset -g POWERLEVEL9K_TIME_FOREGROUND=160
+```
+
+Colors are specified as numbers 0–255. Colors 0–15 vary by terminal theme; colors 16–255 are always the same. If your terminal supports truecolor, you can also use `#RRGGBB`:
+
+```zsh
+typeset -g POWERLEVEL9K_TIME_FOREGROUND='#FF0000'
+```
+
+To preview all 256 colors in your terminal, run:
+
+```zsh
+for i in {0..255}; do print -Pn "%K{$i}  %k%F{$i}${(l:3::0:)i}%f " ${${(M)$((i%6)):#3}:+$'\n'}; done
+```
+
+Run `source ~/.p10k.zsh` to apply changes to the current session.
+</Accordion>
+
+<Accordion title="Why does Powerlevel10k spawn extra processes?">
+Powerlevel10k uses [gitstatus](https://github.com/romkatv/gitstatus) as the backend for the `vcs` segment. Gitstatus spawns `gitstatusd` and `zsh` for its operations. Powerlevel10k may also spawn `zsh` processes to perform background computations without blocking the prompt.
+
+These processes are not shared between interactive shells and terminate automatically when the parent `zsh` process exits or calls `exec(3)`.
+</Accordion>
+
+<Accordion title="Are there configuration options that make Powerlevel10k slow?">
+No. Powerlevel10k is always fast regardless of configuration. If you experience noticeable prompt latency, please [open an issue](https://github.com/romkatv/powerlevel10k/issues) with details about your setup.
+</Accordion>
+
+<Accordion title="Is Powerlevel10k fast to load?">
+Yes. See [zsh-bench](https://github.com/romkatv/zsh-bench) for measured startup times. Powerlevel10k adds very little to Zsh startup time, and with instant prompt enabled, startup lag is effectively eliminated even when slow plugins are present.
+</Accordion>
+
+<Accordion title="What is the relationship between Powerlevel9k and Powerlevel10k?">
+Powerlevel10k was forked from Powerlevel9k in March 2019 after a week-long discussion in [powerlevel9k#1170](https://github.com/Powerlevel9k/powerlevel9k/issues/1170). The fork was created to iterate on performance improvements and new features at a much higher pace than the mature Powerlevel9k release cycle allowed.
+
+The two projects are independent. When using one, you should not install the other. All parameter names in Powerlevel10k begin with `POWERLEVEL9K_` for backward compatibility.
+
+Virtually all code in Powerlevel10k has been rewritten. There is no meaningful overlap in implementation between the two projects today. Powerlevel10k is committed to maintaining backward compatibility with all Powerlevel9k configuration parameters indefinitely.
+</Accordion>
+
+<Accordion title="Does Powerlevel10k always render exactly the same prompt as Powerlevel9k given the same config?">
+Almost, but not exactly. Notable differences:
+
+- Only the `git` vcs backend is enabled by default in Powerlevel10k. To add `svn` and `hg`, set `POWERLEVEL9K_VCS_BACKENDS`. These backends are not yet optimized and will make the prompt slow.
+- `POWERLEVEL9K_VCS_SHOW_SUBMODULE_DIRTY=true` is not supported.
+- `POWERLEVEL9K_MODE` defined before sourcing the theme is ignored by Powerlevel9k but honored by Powerlevel10k.
+- Powerlevel10k respects `ZLE_RPROMPT_INDENT` (Powerlevel9k does not), which can result in an extra trailing space on the right prompt. Add `ZLE_RPROMPT_INDENT=0` to `~/.zshrc` to remove it.
+- Spacing around icons is consistent in Powerlevel10k. Add `POWERLEVEL9K_LEGACY_ICON_SPACING=true` to `~/.zshrc` to restore Powerlevel9k's inconsistent spacing.
+</Accordion>
+
+<Accordion title="What is the best prompt style in the configuration wizard?">
+There is no single best style — it comes down to personal preference. A few considerations:
+
+- **Pure** style replicates the [Pure Zsh theme](https://github.com/sindresorhus/pure) and is primarily for users migrating from it. If you are not, choose **Lean** instead.
+- To confine colors to your terminal's color palette (e.g., Solarized Dark), use **Rainbow**, **Lean → 8 colors**, or **Pure → Original**.
+- All styles support an **ASCII** charset option for maximum compatibility.
+- If you use **transient prompt**, a **two-line** prompt gives you extra typing space without sacrificing scrollback readability.
+- If you use **vi mode**, choose a style with `prompt_char` (shown as `❯` in the wizard).
+- For minimal horizontal space usage: use Lean, disable current time and frame, choose "few icons."
+
+You can run `p10k configure` as many times as you like to experiment.
+</Accordion>
+
+<Accordion title="How to make Powerlevel10k look like robbyrussell Oh My Zsh theme?">
+Use [this config](https://github.com/romkatv/powerlevel10k/blob/master/config/p10k-robbyrussell.zsh). Download and save it as `~/.p10k.zsh`, then source it from `~/.zshrc`:
+
+```zsh
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+```
+
+Alternatively, source the file directly from your cloned Powerlevel10k repository.
+</Accordion>
+
+<Accordion title="Can prompts for completed commands display error status for those commands instead of the commands preceding them?">
+No. When you press Enter and a command starts running, its exit status is not yet known — so it cannot be shown in the prompt for that command. When the command completes, it is no longer possible to update the prompt that was displayed for it. This is why the error status for every command is reflected in the **next** prompt.
+
+For a deeper explanation, see [this post on r/zsh](https://www.reddit.com/r/zsh/comments/eg49ff/powerlevel10k_prompt_history_exit_code_colors/fc5huku).
+</Accordion>
+
+<Accordion title="What is the minimum supported Zsh version?">
+Zsh 5.3 or newer should work. Instant prompt requires Zsh >= 5.4. It is safe to enable instant prompt even on older versions — it simply has no effect.
+</Accordion>
+
+<Accordion title="How were the screenshots and animated gifs created?">
+All screenshots and animated gifs were recorded in **GNOME Terminal** with the [recommended font](https://github.com/romkatv/powerlevel10k#meslo-nerd-font-patched-for-powerlevel10k) and the **Tango Dark** color palette with a custom background color (`#171A1B` instead of `#2E3436` — twice as dark).
+
+Syntax highlighting was provided by [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting).
+</Accordion>
+
+<Accordion title="How was the recommended font created?">
+The recommended font (MesloLGS NF) originates from *Bitstream Vera Sans Mono*, which spawned *Menlo*, which in turn spawned *Meslo*. Extra glyphs were added with scripts forked from Nerd Fonts. The font is released under the [Apache License](https://raw.githubusercontent.com/romkatv/powerlevel10k-media/master/MesloLGS%20NF%20License.txt).
+
+To recreate the font (requires `git` and `docker`):
+
+```zsh
+git clone --depth=1 https://github.com/romkatv/nerd-fonts.git
+cd nerd-fonts
+./build 'Meslo/S/*'
+```
+
+Four `.ttf` files will appear in `./out` if the build succeeds.
+</Accordion>
+
+<Accordion title="How to package Powerlevel10k for distribution?">
+It is currently neither easy nor recommended to package and distribute Powerlevel10k. There are no instructions that would allow you to easily keep a package in sync with new upstream releases. This may change in the future.
+</Accordion>
+
+</AccordionGroup>

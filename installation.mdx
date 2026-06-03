@@ -1,0 +1,435 @@
+---
+title: "Install Powerlevel10k for Zsh"
+sidebarTitle: "Installation"
+description: "Step-by-step instructions for installing Powerlevel10k manually or via Oh My Zsh, Prezto, Zim, Homebrew, and other plugin managers."
+---
+
+Powerlevel10k can be installed in a variety of ways. If you are unsure which method to choose, use the **Manual** method — it works alongside any plugin manager and is the most reliable option. After installation, restart Zsh with `exec zsh` and the configuration wizard will start automatically; if it does not, run `p10k configure`.
+
+<Warning>
+  Powerlevel10k is in **limited-support mode**. No new features are planned and most bugs will go unfixed. It remains fully functional for existing and new installs.
+</Warning>
+
+<Tip>
+  Install the [recommended MesloLGS NF font](/fonts) before running `p10k configure` to unlock all prompt styles.
+</Tip>
+
+## Installation Methods
+
+<Tabs>
+  <Tab title="Manual">
+    The manual installation method works even if you already use a plugin manager. If your plugin manager has a theme active, disable it first to avoid conflicts.
+
+    <Steps>
+      <Step title="Clone the repository">
+        ```zsh
+        git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
+        ```
+
+        <Note>
+          **China mirror** — Users in China can use the official mirror on gitee.com for faster download.
+          中国用户可以使用 gitee.com 上的官方镜像加速下载.
+
+          ```zsh
+          git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git ~/powerlevel10k
+          ```
+        </Note>
+      </Step>
+      <Step title="Source the theme from ~/.zshrc">
+        ```zsh
+        echo 'source ~/powerlevel10k/powerlevel10k.zsh-theme' >>~/.zshrc
+        ```
+      </Step>
+      <Step title="Restart Zsh and configure">
+        ```zsh
+        exec zsh
+        ```
+        The configuration wizard starts automatically. If it does not, run `p10k configure`.
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Plugin Managers">
+    Choose the tab for your plugin manager below.
+
+    ### Oh My Zsh
+
+    <Steps>
+      <Step title="Clone the repository into Oh My Zsh custom themes">
+        ```zsh
+        git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
+        ```
+
+        <Note>
+          **China mirror** — Users in China can use the official mirror on gitee.com for faster download.
+          中国用户可以使用 gitee.com 上的官方镜像加速下载.
+
+          ```zsh
+          git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
+          ```
+        </Note>
+      </Step>
+      <Step title="Set the theme in ~/.zshrc">
+        Open `~/.zshrc`, find the line that sets `ZSH_THEME`, and change its value to:
+        ```zsh
+        ZSH_THEME="powerlevel10k/powerlevel10k"
+        ```
+      </Step>
+      <Step title="Restart Zsh">
+        ```zsh
+        exec zsh
+        ```
+      </Step>
+    </Steps>
+
+    ---
+
+    ### Prezto
+
+    Add the following line to `~/.zpreztorc`:
+
+    ```zsh
+    zstyle :prezto:module:prompt theme powerlevel10k
+    ```
+
+    Then restart Zsh with `exec zsh`.
+
+    ---
+
+    ### Zim
+
+    <Steps>
+      <Step title="Add to ~/.zimrc">
+        ```zsh
+        zmodule romkatv/powerlevel10k --use degit
+        ```
+      </Step>
+      <Step title="Install the module">
+        ```zsh
+        zimfw install
+        ```
+      </Step>
+      <Step title="Restart Zsh">
+        ```zsh
+        exec zsh
+        ```
+      </Step>
+    </Steps>
+
+    ---
+
+    ### Antibody
+
+    Add the following line to `~/.zshrc`:
+
+    ```zsh
+    antibody bundle romkatv/powerlevel10k
+    ```
+
+    ---
+
+    ### Antidote
+
+    Add the following line to `~/.zsh_plugins.txt`:
+
+    ```text
+    romkatv/powerlevel10k
+    ```
+
+    ---
+
+    ### Antigen
+
+    Add the following lines to `~/.zshrc` (make sure `antigen apply` appears after the theme line):
+
+    ```zsh
+    antigen theme romkatv/powerlevel10k
+    antigen apply
+    ```
+
+    ---
+
+    ### Zplug
+
+    Add the following line to `~/.zshrc`:
+
+    ```zsh
+    zplug romkatv/powerlevel10k, as:theme, depth:1
+    ```
+
+    ---
+
+    ### Zgen
+
+    Add the following line to `~/.zshrc`:
+
+    ```zsh
+    zgen load romkatv/powerlevel10k powerlevel10k
+    ```
+
+    ---
+
+    ### Zplugin
+
+    Add the following lines to `~/.zshrc`:
+
+    ```zsh
+    zplugin ice depth=1; zplugin light romkatv/powerlevel10k
+    ```
+
+    <Note>
+      The use of `depth=1` ice is optional. Other types of ice are neither recommended nor officially supported by Powerlevel10k.
+    </Note>
+
+    ---
+
+    ### Zinit
+
+    Add the following lines to `~/.zshrc`:
+
+    ```zsh
+    zinit ice depth=1; zinit light romkatv/powerlevel10k
+    ```
+
+    <Note>
+      The use of `depth=1` ice is optional. Other types of ice are neither recommended nor officially supported by Powerlevel10k.
+    </Note>
+
+    ---
+
+    ### Zi
+
+    Add the following lines to `~/.zshrc`:
+
+    ```zsh
+    zi ice depth=1; zi light romkatv/powerlevel10k
+    ```
+
+    <Note>
+      The use of `depth=1` ice is optional. Other types of ice are neither recommended nor officially supported by Powerlevel10k.
+    </Note>
+
+    ---
+
+    ### Zap
+
+    Add the following line to `~/.zshrc`:
+
+    ```zsh
+    plug "romkatv/powerlevel10k"
+    ```
+  </Tab>
+
+  <Tab title="Package Managers">
+    ### Homebrew (macOS / Linux)
+
+    <Steps>
+      <Step title="Install via Homebrew">
+        ```zsh
+        brew install powerlevel10k
+        ```
+      </Step>
+      <Step title="Source the theme from ~/.zshrc">
+        ```zsh
+        echo "source $(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme" >>~/.zshrc
+        ```
+      </Step>
+      <Step title="Restart Zsh">
+        ```zsh
+        exec zsh
+        ```
+      </Step>
+    </Steps>
+
+    ---
+
+    ### Arch Linux
+
+    <Steps>
+      <Step title="Install the AUR package">
+        ```zsh
+        yay -S --noconfirm zsh-theme-powerlevel10k-git
+        ```
+
+        The [`zsh-theme-powerlevel10k-git`](https://aur.archlinux.org/packages/zsh-theme-powerlevel10k-git/) package referenced above is the official Powerlevel10k AUR package.
+      </Step>
+      <Step title="Source the theme from ~/.zshrc">
+        ```zsh
+        echo 'source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme' >>~/.zshrc
+        ```
+      </Step>
+      <Step title="Restart Zsh">
+        ```zsh
+        exec zsh
+        ```
+      </Step>
+    </Steps>
+
+    ---
+
+    ### Alpine Linux
+
+    <Steps>
+      <Step title="Install the package and create the plugin directory">
+        ```zsh
+        apk add zsh zsh-theme-powerlevel10k
+        mkdir -p ~/.local/share/zsh/plugins
+        ln -s /usr/share/zsh/plugins/powerlevel10k ~/.local/share/zsh/plugins/
+        ```
+      </Step>
+      <Step title="Restart Zsh">
+        ```zsh
+        exec zsh
+        ```
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## Post-Install: First-time Configuration
+
+After installing and restarting Zsh with `exec zsh`, the configuration wizard will start automatically and guide you through choosing a prompt style. If it does not appear, run:
+
+```zsh
+p10k configure
+```
+
+The wizard creates `~/.p10k.zsh` based on your answers. You can rerun it at any time to change your prompt style.
+
+<Note>
+  Do **not** use `source ~/.zshrc` to apply changes — this can cause random errors and progressive slowdown. Always use `exec zsh` or open a new terminal session instead.
+</Note>
+
+## Updating Powerlevel10k
+
+The update command depends on how Powerlevel10k was installed. After updating, restart Zsh with `exec zsh`.
+
+| Installation    | Update Command                                                                             |
+|-----------------|--------------------------------------------------------------------------------------------|
+| Manual          | `git -C ~/powerlevel10k pull`                                                              |
+| Oh My Zsh       | `git -C "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k" pull`               |
+| Prezto          | `zprezto-update`                                                                           |
+| Zim             | `zimfw update`                                                                             |
+| Antigen         | `antigen update`                                                                           |
+| Antidote        | `antidote update`                                                                          |
+| Zplug           | `zplug update`                                                                             |
+| Zgen            | `zgen update`                                                                              |
+| Zplugin         | `zplugin update`                                                                           |
+| Zinit           | `zinit update`                                                                             |
+| Zi              | `zi update`                                                                                |
+| Zap             | `zap update`                                                                               |
+| Homebrew        | `brew update && brew upgrade`                                                              |
+| Arch Linux      | `yay -S --noconfirm zsh-theme-powerlevel10k-git`                                          |
+| Alpine Linux    | `apk update && apk upgrade`                                                                |
+
+<Warning>
+  Restart Zsh after updating. Do **not** use `source ~/.zshrc`.
+</Warning>
+
+## Uninstalling Powerlevel10k
+
+<Steps>
+  <Step title="Remove p10k references from ~/.zshrc">
+    Remove the instant-prompt snippet at the top of `~/.zshrc` if present:
+
+    ```zsh
+    if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+      source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+    fi
+    ```
+
+    And remove the config-sourcing line at the bottom if present:
+
+    ```zsh
+    [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+    ```
+  </Step>
+  <Step title="Remove powerlevel10k references from config files">
+    Remove all references to `powerlevel10k` from `~/.zshrc`, `~/.zpreztorc`, and `~/.zimrc` (some of these files may be missing — this is normal).
+  </Step>
+  <Step title="Verify all references are gone">
+    ```zsh
+    grep -E 'p10k|powerlevel10k' ~/.zshrc ~/.zpreztorc ~/.zimrc 2>/dev/null
+    ```
+
+    If this command produces output, there are still references that need to be removed.
+  </Step>
+  <Step title="Delete the configuration file">
+    ```zsh
+    rm -f ~/.p10k.zsh
+    ```
+  </Step>
+  <Step title="Delete Powerlevel10k source files">
+    The command depends on which installation method you used:
+
+    | Installation | Uninstall Command                                                                    |
+    |--------------|--------------------------------------------------------------------------------------|
+    | Manual       | `rm -rf ~/powerlevel10k`                                                             |
+    | Oh My Zsh    | `rm -rf -- "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"`           |
+    | Prezto       | n/a                                                                                  |
+    | Zim          | `zimfw uninstall`                                                                    |
+    | Antigen      | `antigen purge romkatv/powerlevel10k`                                                |
+    | Antidote     | `antidote purge romkatv/powerlevel10k`                                               |
+    | Zplug        | `zplug clean`                                                                        |
+    | Zgen         | `zgen reset`                                                                         |
+    | Zplugin      | `zplugin delete romkatv/powerlevel10k`                                               |
+    | Zinit        | `zinit delete romkatv/powerlevel10k`                                                 |
+    | Zi           | `zi delete romkatv/powerlevel10k`                                                    |
+    | Zap          | `zsh -ic 'zap clean'`                                                                |
+    | Homebrew     | `brew uninstall powerlevel10k`                                                       |
+    | Arch Linux   | `yay -R --noconfirm zsh-theme-powerlevel10k-git`                                    |
+    | Alpine Linux | `apk del zsh-theme-powerlevel10k`                                                   |
+  </Step>
+  <Step title="Restart Zsh">
+    ```zsh
+    exec zsh
+    ```
+  </Step>
+  <Step title="Delete cache files">
+    ```zsh
+    rm -rf -- "${XDG_CACHE_HOME:-$HOME/.cache}"/p10k-*(N) "${XDG_CACHE_HOME:-$HOME/.cache}"/gitstatus
+    ```
+  </Step>
+</Steps>
+
+## Installing Without Internet Access
+
+If you need to install Powerlevel10k on a machine that has no internet connection, follow these steps. You will need a second machine with internet access to prepare the files.
+
+<Steps>
+  <Step title="Identify the target machine's OS and architecture">
+    Run this command on the machine **without** internet access:
+
+    ```sh
+    uname -sm | tr '[A-Z]' '[a-z]'
+    ```
+
+    Note the output (e.g. `linux x86_64`).
+  </Step>
+  <Step title="Prepare files on an internet-connected machine">
+    On a machine **with** internet access, replace `target_uname` with the output from the previous step:
+
+    ```sh
+    target_uname="replace this with the output of the previous command"
+    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
+    GITSTATUS_CACHE_DIR="$HOME"/powerlevel10k/gitstatus/usrbin ~/powerlevel10k/gitstatus/install -f -s "${target_uname% *}" -m "${target_uname#* }"
+    ```
+  </Step>
+  <Step title="Copy the files to the offline machine">
+    Transfer the `~/powerlevel10k` directory from the internet-connected machine to the machine without internet access (for example, using `scp`, a USB drive, or any other transfer method).
+  </Step>
+  <Step title="Source the theme on the offline machine">
+    ```zsh
+    echo 'source ~/powerlevel10k/powerlevel10k.zsh-theme' >>~/.zshrc
+    ```
+  </Step>
+  <Step title="Remove any existing ZSH_THEME setting">
+    ```zsh
+    sed -i.bak '/^ZSH_THEME=/d' ~/.zshrc
+    ```
+  </Step>
+</Steps>
+
+<Note>
+  To update on an offline machine, remove `~/powerlevel10k` on both machines and repeat the steps above.
+</Note>

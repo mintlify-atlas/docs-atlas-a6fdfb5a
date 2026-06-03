@@ -1,0 +1,103 @@
+---
+title: "Migrate from Powerlevel9k to Powerlevel10k"
+sidebarTitle: "Powerlevel9k"
+description: "Powerlevel10k is a drop-in replacement for Powerlevel9k — all POWERLEVEL9K_* configuration parameters work unchanged, with dramatically better performance."
+---
+
+Powerlevel10k is designed to be a seamless drop-in replacement for Powerlevel9k. Every `POWERLEVEL9K_*` parameter you have already defined continues to work without modification, and your prompt will look virtually identical — only much faster. If you are migrating from Powerlevel9k, you do not need to touch your existing configuration; just swap the theme and restart Zsh.
+
+## Relationship Between Powerlevel9k and Powerlevel10k
+
+Powerlevel10k was forked from Powerlevel9k in March 2019 following a week-long discussion in [powerlevel9k#1170](https://github.com/Powerlevel9k/powerlevel9k/issues/1170). At the time, Powerlevel9k was already a mature project with a large user base and a release cycle measured in months. Powerlevel10k was spun off to iterate on performance improvements and new features at a much higher pace.
+
+The two are now fully independent projects. When using one you should not have the other installed, and issues should be filed against whichever project you actually use. Over time, virtually all code in Powerlevel10k has been rewritten — there is currently no meaningful overlap between the two implementations. All bug fixes and new features committed to the Powerlevel9k repository are ported to Powerlevel10k.
+
+Powerlevel10k is committed to maintaining **backward compatibility with all configs indefinitely**. This commitment covers every configuration parameter recognized by Powerlevel9k as well as additional parameters that only Powerlevel10k understands. For consistency, all parameter names in Powerlevel10k begin with `POWERLEVEL9K_`.
+
+## Migrating from Powerlevel9k with Oh My Zsh
+
+If you are currently running Powerlevel9k inside Oh My Zsh, the entire migration is a single shell session: clone the repository into your Oh My Zsh custom themes directory, update the theme name in `~/.zshrc`, and restart Zsh.
+
+<Steps>
+  <Step title="Clone Powerlevel10k into Oh My Zsh">
+    ```zsh
+    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git \
+      "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
+    ```
+  </Step>
+  <Step title="Replace the theme name in ~/.zshrc">
+    The command below replaces every occurrence of `powerlevel9k` with `powerlevel10k` in your `~/.zshrc` (a `.bak` backup is created automatically):
+    ```zsh
+    sed -i.bak 's/powerlevel9k/powerlevel10k/g' ~/.zshrc
+    ```
+  </Step>
+  <Step title="Restart Zsh">
+    ```zsh
+    exec zsh
+    ```
+  </Step>
+  <Step title="Optional: run the configuration wizard">
+    Install the [recommended Meslo Nerd Font](https://github.com/romkatv/powerlevel10k#meslo-nerd-font-patched-for-powerlevel10k) and then run `p10k configure` to choose a prompt style that takes full advantage of Powerlevel10k's capabilities.
+  </Step>
+</Steps>
+
+<Note>
+  Do **not** remove your existing `POWERLEVEL9K_*` parameters. Powerlevel10k will pick them up automatically and reproduce the same prompt you are used to.
+</Note>
+
+## Differences: Not Perfectly Identical
+
+Powerlevel10k strives to be bug-compatible with Powerlevel9k, but it intentionally diverges in a handful of areas — mostly to correct longstanding bugs or to behave more correctly by default. The differences described below are the ones most commonly encountered when migrating.
+
+### Only the `git` VCS Backend Is Enabled by Default
+
+Powerlevel10k enables only the `git` VCS backend out of the box. If you need `svn` or `hg` support, add them explicitly:
+
+```zsh
+POWERLEVEL9K_VCS_BACKENDS=(git svn hg)
+```
+
+<Warning>
+  The `svn` and `hg` backends are not yet optimized in Powerlevel10k. Enabling them will make prompt display **very slow** in repositories that use those version-control systems.
+</Warning>
+
+### `POWERLEVEL9K_VCS_SHOW_SUBMODULE_DIRTY=true` Is Not Supported
+
+Powerlevel10k does not support the `POWERLEVEL9K_VCS_SHOW_SUBMODULE_DIRTY=true` parameter. If you have this set in your config, remove it to avoid unexpected behavior.
+
+### `POWERLEVEL9K_MODE` Behavior
+
+Powerlevel9k silently ignores `POWERLEVEL9K_MODE` when it is set before the theme is sourced. Powerlevel10k respects it in all cases. If you see different icons in Powerlevel10k compared to Powerlevel9k, you likely have `POWERLEVEL9K_MODE` defined in `~/.zshrc`. Remove that parameter to restore the icon appearance you had with Powerlevel9k.
+
+### `ZLE_RPROMPT_INDENT` Behavior
+
+Powerlevel9k ignores the standard Zsh parameter `ZLE_RPROMPT_INDENT`, which controls the indentation between the right prompt and the right edge of the screen. Powerlevel10k respects it. Because the default value is `1`, right prompt in Powerlevel10k can appear to have an extra trailing space compared to Powerlevel9k.
+
+<Note>
+  Add `ZLE_RPROMPT_INDENT=0` to `~/.zshrc` to reproduce the right-edge spacing you had with Powerlevel9k.
+</Note>
+
+### Icon Spacing
+
+Powerlevel9k has inconsistent spacing around icons — a side-effect of bugs in its rendering logic. Powerlevel10k fixes this inconsistency by default, which means your prompt may have slightly different spacing around some icons after migration.
+
+<Note>
+  Add `POWERLEVEL9K_LEGACY_ICON_SPACING=true` to `~/.zshrc` to replicate Powerlevel9k's original (inconsistent) icon spacing exactly.
+</Note>
+
+### Quick Fix: Extra or Missing Spaces
+
+If your migrated prompt has extra or missing spaces compared to what you had in Powerlevel9k, the following two lines in `~/.zshrc` will restore the original appearance:
+
+```zsh
+ZLE_RPROMPT_INDENT=0
+POWERLEVEL9K_LEGACY_ICON_SPACING=true
+```
+
+<Warning>
+  Do not define `POWERLEVEL9K_LEGACY_ICON_SPACING` when using `p10k configure`. It is intended only for configurations that were originally written for Powerlevel9k.
+</Warning>
+
+## Backward Compatibility Commitment
+
+Powerlevel10k will never break existing configurations. All `POWERLEVEL9K_*` parameters — including those that originated in Powerlevel9k and those that are unique to Powerlevel10k — will continue to be recognized and honored indefinitely. You can migrate today and update Powerlevel10k freely without worrying about your prompt configuration becoming invalid in a future release.

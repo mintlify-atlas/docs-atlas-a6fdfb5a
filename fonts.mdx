@@ -1,0 +1,304 @@
+---
+title: "Fonts for Powerlevel10k: MesloLGS NF Setup"
+sidebarTitle: "Fonts"
+description: "Install and configure MesloLGS NF, the recommended Nerd Font patched for Powerlevel10k, across popular terminals."
+---
+
+Powerlevel10k works with any monospace font, but to unlock the full range of prompt styles — including powerline separators, Nerd Font icons, and all layout options offered by the configuration wizard — you need a font that contains the required glyphs. Without a compatible font, some prompt styles will not be available and certain characters may render as question marks or empty boxes.
+
+The recommended font is **MesloLGS NF**: a gorgeous monospace font designed by Jim Lyles for Bitstream, customized for Apple, further refined by André Berg, and finally patched with glyph scripts originally developed by Ryan L McIntyre of Nerd Fonts. It contains every glyph and symbol that Powerlevel10k may need and has been battle-tested across dozens of terminals on all major operating systems.
+
+<Tip>
+  If you are using **iTerm2** or **Termux**, the `p10k configure` wizard can install MesloLGS NF automatically — simply answer `Yes` when asked whether to install *Meslo Nerd Font*. All other terminals require manual installation.
+</Tip>
+
+## Automatic Installation (iTerm2 and Termux)
+
+Run the configuration wizard and answer `Yes` when prompted:
+
+```zsh
+p10k configure
+```
+
+The wizard detects iTerm2 and Termux and offers to download and install the font for you. Once installed it also reconfigures the terminal profile automatically. No further steps are required.
+
+## Manual Installation
+
+For all other terminals, download the four font files and install them on your system before configuring your terminal.
+
+<Steps>
+  <Step title="Download the four TTF files">
+    Click each link to download, or use `curl`/`wget`:
+
+    - [MesloLGS NF Regular.ttf](https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Regular.ttf)
+    - [MesloLGS NF Bold.ttf](https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Bold.ttf)
+    - [MesloLGS NF Italic.ttf](https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Italic.ttf)
+    - [MesloLGS NF Bold Italic.ttf](https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Bold%20Italic.ttf)
+  </Step>
+  <Step title="Install the fonts on your system">
+    Double-click each `.ttf` file and click **Install**. This makes `MesloLGS NF` available to all applications on your system.
+
+    On Linux you can alternatively copy the files to `~/.local/share/fonts/` and run `fc-cache -fv`.
+  </Step>
+  <Step title="Configure your terminal to use MesloLGS NF">
+    Follow the instructions for your terminal in the section below.
+  </Step>
+  <Step title="Regenerate your Powerlevel10k config">
+    ```zsh
+    p10k configure
+    ```
+
+    The old `~/.p10k.zsh` config may not display correctly with the new font. Running the wizard generates a fresh configuration.
+  </Step>
+</Steps>
+
+## Terminal Configuration
+
+Find your terminal below and follow the steps to set MesloLGS NF as the active font.
+
+<AccordionGroup>
+  <Accordion title="iTerm2">
+    **Option A (recommended):** Run `p10k configure` and answer `Yes` when asked whether to install *Meslo Nerd Font*. The wizard sets the font automatically.
+
+    **Option B (manual):** Open *iTerm2 → Preferences → Profiles → Text* and set **Font** to `MesloLGS NF`.
+  </Accordion>
+
+  <Accordion title="Apple Terminal">
+    Open *Terminal → Preferences → Profiles → Text*, click **Change** under *Font*, and select the `MesloLGS NF` family.
+  </Accordion>
+
+  <Accordion title="Hyper">
+    Open *Hyper → Edit → Preferences* and change the value of `fontFamily` under `module.exports.config` to `MesloLGS NF`.
+  </Accordion>
+
+  <Accordion title="Visual Studio Code">
+    Open *File → Preferences → Settings* (Windows/Linux) or *Code → Preferences → Settings* (macOS). Enter `terminal.integrated.fontFamily` in the search box and set the value to `MesloLGS NF`.
+
+    You can refer to [this screenshot](https://raw.githubusercontent.com/romkatv/powerlevel10k-media/389133fb8c9a2347929a23702ce3039aacc46c3d/visual-studio-code-font-settings.jpg) to see how the setting should look, or see [this issue](https://github.com/romkatv/powerlevel10k/issues/671) for additional information.
+
+    <Warning>
+      Software installed via [Snap](https://en.wikipedia.org/wiki/Snap_(software)) cannot use system fonts. If you installed VS Code via Snap, remove it with `sudo snap remove code` and install the official `.deb` build from the [VS Code website](https://code.visualstudio.com/Download).
+    </Warning>
+  </Accordion>
+
+  <Accordion title="GNOME Terminal">
+    Open *Terminal → Preferences* and click on the selected profile under *Profiles*. Check **Custom font** under *Text Appearance* and select `MesloLGS NF Regular`.
+  </Accordion>
+
+  <Accordion title="Konsole">
+    Open *Settings → Edit Current Profile → Appearance*, click **Select Font**, and select `MesloLGS NF Regular`.
+  </Accordion>
+
+  <Accordion title="Tilix">
+    Open *Tilix → Preferences* and click on the selected profile under *Profiles*. Check **Custom font** under *Text Appearance* and select `MesloLGS NF Regular`.
+  </Accordion>
+
+  <Accordion title="Windows Console Host">
+    Click the icon in the top-left corner of the console window, then go to *Properties → Font* and set **Font** to `MesloLGS NF`.
+  </Accordion>
+
+  <Accordion title="Windows Terminal">
+    Open *Settings* (<kbd>Ctrl</kbd>+<kbd>,</kbd>), click either on the selected profile under *Profiles* or on *Defaults*, click **Appearance**, and set **Font face** to `MesloLGS NF`.
+  </Accordion>
+
+  <Accordion title="ConEmu">
+    Open *Setup → General → Fonts* and set **Main console font** to `MesloLGS NF`.
+  </Accordion>
+
+  <Accordion title="IntelliJ IDEA (and other JetBrains IDEs)">
+    Open *IDE → Edit → Preferences → Editor → Color Scheme → Console Font*. Select **Use console font instead of the default** and set the font name to `MesloLGS NF`.
+  </Accordion>
+
+  <Accordion title="Termux">
+    Run `p10k configure` and answer `Yes` when asked whether to install *Meslo Nerd Font*. Termux handles the download and installation automatically.
+  </Accordion>
+
+  <Accordion title="Blink Shell">
+    Type `config`, go to *Appearance*, tap **Add a new font**, tap **Open Gallery**, select `MesloLGS NF.css`, tap **import**, and type `exit` in the home view to reload the font.
+  </Accordion>
+
+  <Accordion title="Tabby / Terminus">
+    Open *Settings → Appearance* and set **Font** to `MesloLGS NF`.
+  </Accordion>
+
+  <Accordion title="Terminator">
+    Open *Preferences* using the context menu. Under *Profiles* select the *General* tab (selected by default), uncheck **Use the system fixed width font** (if not already unchecked), and select `MesloLGS NF Regular`. Click **Close** to exit.
+  </Accordion>
+
+  <Accordion title="Guake">
+    Right-click on an open terminal and open *Preferences*. Under the *Appearance* tab, uncheck **Use the system fixed width font** (if not already unchecked) and select `MesloLGS NF Regular`. Click **Close** to exit.
+  </Accordion>
+
+  <Accordion title="MobaXterm">
+    Open *Settings → Configuration → Terminal* and, under *Terminal look and feel*, change **Font** to `MesloLGS NF`.
+
+    If you have saved sessions, you must also update the font for each one: go to *Settings* → right-click the session → *Edit Session → Terminal Settings → Font settings*.
+  </Accordion>
+
+  <Accordion title="Asbrú Connection Manager">
+    Open *Preferences → Local Shell Options → Look and Feel*, enable **Use these personal options**, and change **Font** under *Terminal UI* to `MesloLGS NF Regular`.
+
+    To update the font for remote host connections, go to *Preferences → Terminal Options → Look and Feel* and change **Font** under *Terminal UI* to `MesloLGS NF Regular`.
+  </Accordion>
+
+  <Accordion title="Warp">
+    Open Warp and navigate to *Settings → Appearance*. Scroll down to the *Text* section and, under **Terminal Font**, select `MesloLGS NF`.
+  </Accordion>
+
+  <Accordion title="WSLtty">
+    Right-click on an open terminal and click **Options**. In the *Text* section under *Font*, click **Select...** and set the font to `MesloLGS NF Regular`.
+  </Accordion>
+
+  <Accordion title="Yakuake">
+    Click *≡ → Manage Profiles → New → Appearance*. Click **Choose** next to the *Font* dropdown, select `MesloLGS NF`, and click **OK**. Click **OK** to save the profile, select the new profile, and click **Set as Default**.
+  </Accordion>
+
+  <Accordion title="Alacritty">
+    Create or open `~/.config/alacritty/alacritty.toml` and add the following section:
+
+    ```toml
+    [font.normal]
+    family = "MesloLGS NF"
+    ```
+  </Accordion>
+
+  <Accordion title="foot">
+    Create or open `~/.config/foot/foot.ini` and add the following line:
+
+    ```ini
+    font=MesloLGS NF:size=12
+    ```
+  </Accordion>
+
+  <Accordion title="kitty">
+    Create or open `~/.config/kitty/kitty.conf` and add the following line:
+
+    ```text
+    font_family MesloLGS NF
+    ```
+
+    Restart kitty by closing all sessions and opening a new session.
+  </Accordion>
+
+  <Accordion title="PuTTY">
+    Go to *Window → Appearance → Font* and set it to `MesloLGS NF`.
+
+    <Note>
+      PuTTY version 0.75 or newer is required.
+    </Note>
+  </Accordion>
+
+  <Accordion title="WezTerm">
+    Create or open `$HOME/.config/wezterm/wezterm.lua` and add the following:
+
+    ```lua
+    local wezterm = require 'wezterm';
+    return {
+        font = wezterm.font("MesloLGS NF"),
+    }
+    ```
+
+    If the file already exists, add only the `font` line to the existing `return` table, and add the `require` line at the top if it is not already present.
+  </Accordion>
+
+  <Accordion title="urxvt">
+    Create or open `~/.Xresources` and add the following line:
+
+    ```text
+    URxvt.font: xft:MesloLGS NF:size=11
+    ```
+
+    You can adjust the font size to your preference. After saving, reload the config:
+
+    ```bash
+    xrdb ~/.Xresources
+    ```
+
+    The new configuration applies to all new terminal windows.
+  </Accordion>
+
+  <Accordion title="xterm">
+    Create or open `~/.Xresources` and add the following line:
+
+    ```text
+    xterm*faceName: MesloLGS NF
+    ```
+
+    After saving, reload the config:
+
+    ```bash
+    xrdb ~/.Xresources
+    ```
+
+    The new configuration applies to all new terminal windows.
+  </Accordion>
+
+  <Accordion title="Zed">
+    Open `~/.config/zed/settings.json` and set `terminal.font_family` to `"MesloLGS NF"`:
+
+    ```jsonc
+    {
+      "terminal": {
+        "font_family": "MesloLGS NF"
+      },
+      // Other settings.
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Crostini (Linux on Chrome OS)">
+    Open `chrome-untrusted://terminal/html/nassh_preferences_editor.html`, set **Text font family** to `'MesloLGS NF'` (including the single quotes), and set **Custom CSS (inline text)** to the following:
+
+    ```css
+    @font-face {
+     font-family: "MesloLGS NF";
+     src: url("https://raw.githubusercontent.com/romkatv/powerlevel10k-media/master/MesloLGS%20NF%20Regular.ttf");
+     font-weight: normal;
+     font-style: normal;
+    }
+    @font-face {
+        font-family: "MesloLGS NF";
+        src: url("https://raw.githubusercontent.com/romkatv/powerlevel10k-media/master/MesloLGS%20NF%20Bold.ttf");
+        font-weight: bold;
+        font-style: normal;
+    }
+    @font-face {
+        font-family: "MesloLGS NF";
+        src: url("https://raw.githubusercontent.com/romkatv/powerlevel10k-media/master/MesloLGS%20NF%20Italic.ttf");
+        font-weight: normal;
+        font-style: italic;
+    }
+    @font-face {
+        font-family: "MesloLGS NF";
+        src: url("https://raw.githubusercontent.com/romkatv/powerlevel10k-media/master/MesloLGS%20NF%20Bold%20Italic.ttf");
+        font-weight: bold;
+        font-style: italic;
+    }
+    ```
+
+    <Warning>
+      If you open the standard terminal preferences dialog, these settings will be overwritten and you will need to re-enter them.
+    </Warning>
+  </Accordion>
+
+  <Accordion title="Deepin Terminal">
+    Create or open `~/.config/deepin/deepin-terminal/config.conf` and add the following section:
+
+    ```ini
+    [basic.interface.font]
+    value = "MesloLGS NF"
+    ```
+  </Accordion>
+
+  <Accordion title="Ghostty">
+    Open *Menu → Open Configuration* (Linux) or *Ghostty → Settings...* (macOS) and add the following line:
+
+    ```text
+    font-family = "MesloLGS NF"
+    ```
+  </Accordion>
+</AccordionGroup>
+
+<Note>
+  Using a terminal not listed here and know how to configure the font? Contributions are welcome — open a pull request on the [Powerlevel10k repository](https://github.com/romkatv/powerlevel10k) to expand the list.
+</Note>

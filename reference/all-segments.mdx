@@ -1,0 +1,117 @@
+---
+title: "All Built-in Prompt Segments Reference"
+sidebarTitle: "All Segments"
+description: "Complete reference table of all 60+ built-in Powerlevel10k prompt segments with descriptions and source links."
+---
+
+Powerlevel10k ships with over 60 built-in prompt segments that cover everything from version managers and cloud provider contexts to battery status and file-manager shells. Each segment is self-contained: it knows how to gather its own data, how to format it, and how to apply the styling parameters defined in `~/.p10k.zsh`. Because segments run concurrently and most of their work is deferred, you can enable as many as you like without any measurable impact on prompt latency or Zsh startup time.
+
+## Enabling and Disabling Segments
+
+All segments are controlled by two arrays in `~/.p10k.zsh`:
+
+```zsh
+typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(
+  os_icon dir vcs prompt_char
+)
+
+typeset -g POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(
+  status command_execution_time context time
+)
+```
+
+Add a segment name to the relevant array to enable it. Comment it out or remove it to disable it. The order of entries determines the order segments appear in the prompt.
+
+<Tip>
+After editing `~/.p10k.zsh`, run `p10k reload` (or open a new shell) to apply your changes. You do **not** need to restart Zsh each time.
+</Tip>
+
+## Segment Table
+
+| Segment | Meaning |
+|--------:|---------|
+| `anaconda` | virtual environment from [conda](https://conda.io/) |
+| `asdf` | tool versions from [asdf](https://github.com/asdf-vm/asdf) |
+| `aws` | [aws profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html) |
+| `aws_eb_env` | [aws elastic beanstalk](https://aws.amazon.com/elasticbeanstalk/) environment |
+| `azure` | [azure](https://docs.microsoft.com/en-us/cli/azure) account name |
+| `background_jobs` | presence of background jobs |
+| `battery` | internal battery state and charge level |
+| `command_execution_time` | duration (wall time) of the last command |
+| `context` | user@hostname |
+| `cpu_arch` | CPU architecture |
+| `dir` | current working directory |
+| `direnv` | [direnv](https://direnv.net/) status |
+| `disk_usage` | disk usage |
+| `dotnet_version` | [dotnet](https://dotnet.microsoft.com) version |
+| `fvm` | flutter environment from [fvm](https://github.com/leoafarias/fvm) |
+| `gcloud` | [google cloud](https://cloud.google.com/) cli account and project |
+| `goenv` | go environment from [goenv](https://github.com/syndbg/goenv) |
+| `google_app_cred` | [google application credentials](https://cloud.google.com/docs/authentication/production) |
+| `go_version` | [go](https://golang.org) version |
+| `haskell_stack` | haskell version from [stack](https://haskellstack.org/) |
+| `ip` | IP address and bandwidth usage for a specified network interface |
+| `java_version` | [java](https://www.java.com/) version |
+| `jenv` | java environment from [jenv](https://github.com/jenv/jenv) |
+| `kubecontext` | current [kubernetes](https://kubernetes.io/) context |
+| `laravel_version` | [laravel php framework](https://laravel.com/) version |
+| `load` | CPU load |
+| `luaenv` | lua environment from [luaenv](https://github.com/cehoffman/luaenv) |
+| `midnight_commander` | [midnight commander](https://midnight-commander.org/) shell |
+| `nix_shell` | [nix shell](https://nixos.org/nixos/nix-pills/developing-with-nix-shell.html) indicator |
+| `nnn` | [nnn](https://github.com/jarun/nnn) shell |
+| `lf` | [lf](https://github.com/gokcehan/lf) shell |
+| `chezmoi_shell` | [chezmoi](https://www.chezmoi.io/) shell |
+| `nodeenv` | node.js environment from [nodeenv](https://github.com/ekalinin/nodeenv) |
+| `nodenv` | node.js environment from [nodenv](https://github.com/nodenv/nodenv) |
+| `node_version` | [node.js](https://nodejs.org/) version |
+| `nordvpn` | [nordvpn](https://nordvpn.com/) connection status |
+| `nvm` | node.js environment from [nvm](https://github.com/nvm-sh/nvm) |
+| `os_icon` | your OS logo (apple for macOS, swirl for debian, etc.) |
+| `package` | `name@version` from [package.json](https://docs.npmjs.com/files/package.json) |
+| `per_directory_history` | Oh My Zsh [per-directory-history](https://github.com/jimhester/per-directory-history) local/global indicator |
+| `perlbrew` | perl version from [perlbrew](https://github.com/gugod/App-perlbrew) |
+| `phpenv` | php environment from [phpenv](https://github.com/phpenv/phpenv) |
+| `php_version` | [php](https://www.php.net/) version |
+| `plenv` | perl environment from [plenv](https://github.com/tokuhirom/plenv) |
+| `prompt_char` | multi-functional prompt symbol; changes depending on vi mode: `❯`, `❮`, `V`, `▶` for insert, command, visual and replace mode respectively; turns red on error |
+| `proxy` | system-wide http/https/ftp proxy |
+| `public_ip` | public IP address |
+| `pyenv` | python environment from [pyenv](https://github.com/pyenv/pyenv) |
+| `ram` | free RAM |
+| `ranger` | [ranger](https://github.com/ranger/ranger) shell |
+| `yazi` | [yazi](https://github.com/sxyazi/yazi) shell |
+| `rbenv` | ruby environment from [rbenv](https://github.com/rbenv/rbenv) |
+| `rust_version` | [rustc](https://www.rust-lang.org) version |
+| `rvm` | ruby environment from [rvm](https://rvm.io) |
+| `scalaenv` | scala version from [scalaenv](https://github.com/scalaenv/scalaenv) |
+| `status` | exit code of the last command |
+| `swap` | used swap |
+| `taskwarrior` | [taskwarrior](https://taskwarrior.org/) task count |
+| `terraform` | [terraform](https://www.terraform.io) workspace |
+| `terraform_version` | [terraform](https://www.terraform.io) version |
+| `time` | current time |
+| `timewarrior` | [timewarrior](https://timewarrior.net/) tracking status |
+| `todo` | [todo](https://github.com/todotxt/todo.txt-cli) items |
+| `toolbox` | [toolbox](https://github.com/containers/toolbox) name |
+| `vcs` | Git repository status |
+| `vim_shell` | [vim](https://www.vim.org/) shell (`:sh`) |
+| `virtualenv` | python environment from [venv](https://docs.python.org/3/library/venv.html) |
+| `vi_mode` | vi mode (you don't need this if you've enabled `prompt_char`) |
+| `vpn_ip` | virtual private network indicator |
+| `wifi` | WiFi speed |
+| `xplr` | [xplr](https://github.com/sayanarijit/xplr) shell |
+
+## Performance
+
+Enabling many segments does **not** slow down the prompt. Powerlevel10k computes segment content asynchronously, and segments that are not relevant (e.g., `kubecontext` when `kubectl` is not installed) return immediately. The prompt always appears within milliseconds of pressing Enter, regardless of the number of active segments.
+
+## Custom Segments
+
+If none of the built-in segments fits your needs, you can write your own using the public `p10k segment` API. Custom segment functions follow the naming convention `prompt_<name>` and are added to the prompt elements array just like built-in ones.
+
+See [Custom Segments](/configuration/custom-segments) for a full guide including examples, state-based styling, and icon customization.
+
+<Tip>
+Prefix the names of your own segments with `my_` (e.g., `my_cpu_temp`) to avoid potential name collisions with future versions of Powerlevel10k.
+</Tip>

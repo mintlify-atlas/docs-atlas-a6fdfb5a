@@ -1,0 +1,65 @@
+---
+title: "Powerlevel10k: A Zsh Theme Built for Speed"
+sidebarTitle: "Introduction"
+description: "Learn what Powerlevel10k is, what makes it fast, and which features set it apart from other Zsh themes."
+---
+
+Powerlevel10k is a theme for Zsh that puts speed, flexibility, and a polished out-of-the-box experience at the forefront. Whether you are starting fresh or migrating from another theme, Powerlevel10k gets you a beautiful, information-rich prompt without sacrificing any shell responsiveness. Every keystroke and every `ENTER` feels instant — because it is. The theme ships with more than 60 built-in prompt segments, a guided configuration wizard, and a public API for writing your own segments, making it equally at home for casual users and power users who want to craft a fully bespoke prompt.
+
+<Warning>
+  Powerlevel10k is currently in **limited-support mode**. No new features are being developed, most bugs will go unfixed, and help requests may not receive a response. The project remains fully functional for existing users; the status simply means active development has concluded.
+</Warning>
+
+## Requirements
+
+Powerlevel10k requires **Zsh 5.3 or newer**. The [Instant Prompt](#instant-prompt) feature additionally requires **Zsh 5.4 or newer** — it is safe to enable on older versions, but it will have no effect.
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="Configuration Wizard" icon="wand-magic-sparkles">
+    Run `p10k configure` at any time to launch an interactive wizard that walks you through every visual option and writes a `~/.p10k.zsh` config file based on your answers. Run it as many times as you like to try new styles.
+  </Card>
+  <Card title="Instant Prompt" icon="bolt">
+    Eliminates Zsh startup lag even when dozens of slow plugins are loaded. The prompt appears immediately on launch, letting you start typing while initialization continues in the background. Requires Zsh 5.4+.
+  </Card>
+  <Card title="Transient Prompt" icon="arrow-turn-down">
+    After accepting a command, Powerlevel10k trims the previous prompt down to a minimal form. This keeps the scrollback clean and makes copy-pasting series of commands much easier.
+  </Card>
+  <Card title="Show on Command" icon="eye">
+    Prompt segments such as the Kubernetes context or AWS profile can be configured to appear only when the command you are currently typing is relevant to them — keeping the prompt uncluttered the rest of the time.
+  </Card>
+  <Card title="Powerlevel9k Compatibility" icon="plug">
+    Understands every `POWERLEVEL9K_*` configuration parameter. Migrating from Powerlevel9k is straightforward: your existing config works as-is and your prompt looks the same, only faster.
+  </Card>
+  <Card title="Pure Compatibility" icon="equals">
+    Can reproduce the exact look of the [Pure](https://github.com/sindresorhus/pure) Zsh theme. Select *Pure* style in the configuration wizard and you get Pure's aesthetic with Powerlevel10k's performance features intact.
+  </Card>
+  <Card title="60+ Built-in Segments" icon="table-cells">
+    Ships with high-quality segments for Git status, Python/Node/Ruby/Go/Rust environments, Kubernetes context, AWS/Azure/GCP credentials, battery, time, disk usage, and dozens more. Enabling extra segments has no measurable impact on prompt speed.
+  </Card>
+  <Card title="Custom Segment API" icon="code">
+    Define your own prompt segments using the public Powerlevel10k API. Custom segments are as fast and as featureful as built-in ones, and all standard customization parameters apply automatically. Use `p10k help segment` for reference.
+  </Card>
+  <Card title="Smart Directory Truncation" icon="folder-tree">
+    When the current working directory is too long to fit, Powerlevel10k shortens each segment to its shortest unique prefix — never producing an ambiguous path. Git repository roots and the final segment are always shown in full.
+  </Card>
+  <Card title="Async Git Status" icon="code-branch">
+    Git repository state is computed asynchronously after every command using [gitstatus](https://github.com/romkatv/gitstatus), a native daemon backed by libgit2. Large repositories are handled without any prompt lag.
+  </Card>
+</CardGroup>
+
+## Prompt Styles
+
+All styles except Pure are functionally equivalent — they display the same information and differ only in presentation. The configuration wizard lets you preview every combination of style, color scheme, icons, and layout options before committing to one. You can switch styles at any time by re-running `p10k configure`.
+
+The range of available aesthetics spans from a sparse, single-character prompt to a multi-line extravagant layout packed with icons and powerline separators. Notable built-in emulations include:
+
+- **Lean** — a modern, minimal style that saves horizontal space and avoids powerline rendering artefacts.
+- **Classic** — a traditional powerline style with colored segment backgrounds.
+- **Rainbow** — Classic with a vivid multi-color palette that adapts to your terminal color scheme.
+- **Pure** — a pixel-perfect replica of the Pure Zsh theme.
+
+<Tip>
+  Install the [recommended MesloLGS NF font](/fonts) before running `p10k configure` to unlock all prompt styles, including those that use Nerd Font glyphs and powerline symbols.
+</Tip>

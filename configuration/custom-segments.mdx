@@ -1,0 +1,180 @@
+---
+title: "Building Custom Prompt Segments for Powerlevel10k"
+sidebarTitle: "Custom Segments"
+description: "Implement your own Powerlevel10k prompt segments using the p10k segment API — custom segments share all standard configuration parameters."
+---
+
+When none of the 60+ built-in segments covers your use case, you can implement your own. Custom segments are full citizens of the Powerlevel10k prompt system: they support the same color, icon, and content configuration parameters as built-in segments, they can define states for conditional styling, and they participate in the same asynchronous rendering pipeline that keeps the prompt fast.
+
+## How Custom Segments Work
+
+Powerlevel10k looks for a shell function named `prompt_<segmentname>` every time it renders a prompt line that includes `<segmentname>` in `POWERLEVEL9K_LEFT_PROMPT_ELEMENTS` or `POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS`. The function calls `p10k segment` to emit the segment's content, icon, colors, and state. If the function returns without calling `p10k segment`, the segment is hidden entirely — no empty space is left in the prompt.
+
+## Creating a Custom Segment
+
+<Steps>
+  <Step title="Name your segment">
+    Choose a name prefixed with `my_` to avoid conflicts with future built-in segments. For example: `my_cpu_temp`.
+  </Step>
+  <Step title="Define the prompt function in ~/.p10k.zsh">
+    Add a function named `prompt_my_<name>`. The function is called during prompt rendering and must call `p10k segment` to produce output.
+
+    ```zsh
+    function prompt_my_cpu_temp() {
+      local temp_file='/sys/class/thermal/thermal_zone0/temp'
+      [[ -r $temp_file ]] || return
+
+      local -i temp_milli
+      temp_milli=$(<$temp_file)
+      local -i temp=$(( temp_milli / 1000 ))
+
+      local state icon
+      if (( temp >= 80 )); then
+        state=HOT
+        icon='🔥'
+      elif (( temp >= 60 )); then
+        state=WARM
+        icon='🌡️'
+      else
+        state=COOL
+        icon='❄️'
+      fi
+
+      p10k segment -s $state -i $icon -t "${temp}°C"
+    }
+    ```
+  </Step>
+  <Step title="Add the segment name to your prompt elements">
+    Open `~/.p10k.zsh` and add `my_cpu_temp` to the desired elements array:
+
+    ```zsh
+    typeset -g POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(
+      status
+      command_execution_time
+      my_cpu_temp        # ← your custom segment
+      # ...
+    )
+    ```
+  </Step>
+  <Step title="Apply the changes">
+    ```zsh
+    source ~/.p10k.zsh
+    ```
+  </Step>
+</Steps>
+
+## The `p10k segment` API
+
+The `p10k segment` command is the only way for a `prompt_*` function to produce output. It can be called multiple times within a single function to emit multiple visual states, but only one call will "win" per render — the last non-hidden call takes effect.
+
+```
+p10k segment [-s STATE] [-b BG] [-f FG] [-i ICON] [-c COND] [-t TEXT] [-r] [-e]
+```
+
+| Flag | Argument | Description |
+|------|----------|-------------|
+| `-s` | `STATE` | Optional state name (e.g., `HOT`, `COOL`). Uppercased and appended to the parameter prefix for conditional styling. |
+| `-b` | `BG` | Background color: a number (0–255), a `#RRGGBB` truecolor string, or empty for transparent. Defaults to black (`0`). |
+| `-f` | `FG` | Foreground color: a number, `#RRGGBB`, or empty for the terminal default. |
+| `-i` | `ICON` | Icon character or glyph to display before the text. Defaults to empty. |
+| `-r` | — | Treat the icon as a symbolic reference (e.g., `LOCK_ICON`) to be resolved by Powerlevel10k's icon table. Without `-r`, the icon is printed literally. |
+| `-c` | `COND` | Condition expression. If the value is empty after parameter expansion, the segment is hidden. Default is `'1'` (always shown). |
+| `-t` | `TEXT` | The segment's main text content. Undergoes Zsh prompt expansion (`%F{color}`, `%*`, etc.). |
+| `-e` | — | Also expand `-t TEXT` via parameter expansion and process substitution (advanced use). |
+| `-h` | — | Print built-in help and exit. |
+
+Run `p10k help segment` in an active Zsh session for the complete reference, including more examples.
+
+## State-Based Styling
+
+When you pass `-s STATE`, Powerlevel10k appends the uppercased state to the `POWERLEVEL9K_MY_<NAME>_` parameter prefix. This lets you assign different colors and icons per state in `~/.p10k.zsh` without any extra logic in the function itself:
+
+```zsh
+# Default colors (used when no state-specific override is set)
+typeset -g POWERLEVEL9K_MY_CPU_TEMP_FOREGROUND=7
+typeset -g POWERLEVEL9K_MY_CPU_TEMP_BACKGROUND=0
+
+# Override colors for the HOT state
+typeset -g POWERLEVEL9K_MY_CPU_TEMP_HOT_FOREGROUND=1
+typeset -g POWERLEVEL9K_MY_CPU_TEMP_HOT_BACKGROUND=0
+
+# Override icon for the COOL state
+typeset -g POWERLEVEL9K_MY_CPU_TEMP_COOL_VISUAL_IDENTIFIER_EXPANSION='❄️'
+```
+
+All standard `POWERLEVEL9K_<SEGMENT>_*` parameters apply automatically, including `_CONTENT_EXPANSION`, `_VISUAL_IDENTIFIER_EXPANSION`, `_SHOW_ON_COMMAND`, and `_PREFIX`.
+
+## Instant Prompt Support
+
+If your custom segment should display a cached value in the [instant prompt](/configuration/instant-prompt), define a companion `instant_prompt_my_<name>` function. Powerlevel10k calls both functions at the same time and replays the `p10k segment` calls from the instant prompt function when displaying the cached prompt.
+
+```zsh
+function instant_prompt_my_cpu_temp() {
+  # Only safe to call from instant_prompt_* if the segment always
+  # produces the same output regardless of external state.
+  # In this case, reading a sysfs file is fast and deterministic enough.
+  prompt_my_cpu_temp
+}
+```
+
+If `instant_prompt_my_<name>` is not defined, the segment is simply absent from the instant prompt display.
+
+## Hot Reload and Reload
+
+By default, `POWERLEVEL9K_DISABLE_HOT_RELOAD=true` in configs created by the wizard. This means that if you modify `POWERLEVEL9K_*` parameters in an already-running interactive shell (rather than in `~/.p10k.zsh`), the changes do not take effect immediately.
+
+To apply changes without restarting Zsh:
+
+```zsh
+# Reload after editing ~/.p10k.zsh
+source ~/.p10k.zsh
+
+# Or call p10k reload if you changed POWERLEVEL9K_* params at the command line
+p10k reload
+```
+
+To have parameter changes take effect automatically without calling `p10k reload`, set:
+
+```zsh
+typeset -g POWERLEVEL9K_DISABLE_HOT_RELOAD=false
+```
+
+Note that enabling hot reload adds 1–2 milliseconds to every prompt render.
+
+## Complete Example — CPU Temperature Segment
+
+The following is a complete, production-ready custom segment that reads CPU temperature from the Linux kernel's thermal sysfs interface and displays it with state-based coloring:
+
+```zsh
+# In ~/.p10k.zsh — place this near the bottom, before the closing `}`
+
+function prompt_my_cpu_temp() {
+  local temp_file='/sys/class/thermal/thermal_zone0/temp'
+  [[ -r $temp_file ]] || return   # hide segment if file is not readable
+
+  local -i temp=$(( $(<$temp_file) / 1000 ))
+
+  local state
+  if (( temp >= 80 )); then
+    state=HOT
+  elif (( temp >= 60 )); then
+    state=WARM
+  else
+    state=COOL
+  fi
+
+  p10k segment -s $state -f 7 -i '🌡️' -t "${temp}°C"
+}
+
+# Styling overrides — works like any built-in segment
+typeset -g POWERLEVEL9K_MY_CPU_TEMP_FOREGROUND=7
+typeset -g POWERLEVEL9K_MY_CPU_TEMP_BACKGROUND=0
+typeset -g POWERLEVEL9K_MY_CPU_TEMP_HOT_BACKGROUND=1    # red bg when hot
+typeset -g POWERLEVEL9K_MY_CPU_TEMP_WARM_BACKGROUND=3   # yellow bg when warm
+```
+
+Then add `my_cpu_temp` to `POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS` and run `source ~/.p10k.zsh`.
+
+<Tip>
+  Prefix all your custom segment names with `my_` — for example `my_cpu_temp`, `my_vault_status`, `my_project_env`. This ensures your names never clash with segments introduced in future Powerlevel10k releases.
+</Tip>

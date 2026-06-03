@@ -1,0 +1,87 @@
+---
+title: "Smart Directory Truncation in Powerlevel10k"
+sidebarTitle: "Directory Truncation"
+description: "Learn how Powerlevel10k intelligently truncates long directory paths to their shortest unique prefix, color-coding truncated, important, and regular segments."
+---
+
+The `dir` segment — which shows the current working directory — is arguably the most important piece of information in any shell prompt. Powerlevel10k goes to great lengths to keep it readable at any terminal width: it highlights the parts of the path that matter most and truncates the rest with the least possible loss of information.
+
+## How truncation works
+
+When the full directory path does not fit on the prompt line, Powerlevel10k shortens it by replacing the leftmost segments with their **shortest unique prefix**. For example, if `~/work` is the only directory under `~` that starts with `wo`, it can be abbreviated to `~/wo`. It cannot be shortened further to `~/w` if another directory like `~/wireguard` also starts with `w`.
+
+This strategy — called `truncate_to_unique` — is set by the `POWERLEVEL9K_SHORTEN_STRATEGY` parameter:
+
+```zsh
+# If directory is too long, shorten some of its segments to the shortest possible unique
+# prefix. The shortened directory can be tab-completed to the original.
+typeset -g POWERLEVEL9K_SHORTEN_STRATEGY=truncate_to_unique
+```
+
+## Three segment colours
+
+Every segment of the path is rendered in one of three distinct colours so you can immediately tell how much information has been retained:
+
+- **Truncated** segments are shown in a bleak, dim colour. They have been shortened and may not be unique if you have created new directories since the prompt was drawn.
+- **Important** (anchor) segments are shown in a bright colour and are **never truncated**. These always include the first path component, the last component, and the roots of Git repositories. You always see them in full.
+- **Regular** segments — those that are shown in full but could in principle be shortened — use an in-between colour.
+
+The corresponding parameters in `~/.p10k.zsh` are:
+
+```zsh
+# Default current directory foreground color.
+typeset -g POWERLEVEL9K_DIR_FOREGROUND=254
+
+# Color of the shortened directory segments.
+typeset -g POWERLEVEL9K_DIR_SHORTENED_FOREGROUND=250
+
+# Color of the anchor directory segments. Anchor segments are never shortened. The first
+# segment is always an anchor.
+typeset -g POWERLEVEL9K_DIR_ANCHOR_FOREGROUND=255
+
+# Display anchor directory segments in bold.
+typeset -g POWERLEVEL9K_DIR_ANCHOR_BOLD=true
+```
+
+## Configuration parameters
+
+The key parameters that control directory display and truncation behaviour are:
+
+| Parameter | Default | Purpose |
+|---|---|---|
+| `POWERLEVEL9K_DIR_BACKGROUND` | `4` | Background colour of the `dir` segment |
+| `POWERLEVEL9K_DIR_FOREGROUND` | `254` | Foreground colour of regular path segments |
+| `POWERLEVEL9K_DIR_SHORTENED_FOREGROUND` | `250` | Foreground colour of truncated (shortened) segments |
+| `POWERLEVEL9K_DIR_ANCHOR_FOREGROUND` | `255` | Foreground colour of anchor (important, never-shortened) segments |
+| `POWERLEVEL9K_DIR_ANCHOR_BOLD` | `true` | Whether anchor segments are rendered in bold |
+| `POWERLEVEL9K_SHORTEN_STRATEGY` | `truncate_to_unique` | Algorithm used to shorten path segments |
+| `POWERLEVEL9K_SHORTEN_DIR_LENGTH` | `1` | Number of trailing path segments that are always treated as anchors |
+
+All of these can be found and edited in `~/.p10k.zsh`.
+
+## Tab-completing a truncated path
+
+<Tip>
+  If you copy a truncated directory path from your scrollback and paste it into the command line,
+  you can press **Tab** to expand it to the full, unambiguous path. Powerlevel10k's shortened
+  directories are valid path prefixes that Zsh's completion system can resolve automatically.
+</Tip>
+
+## Rainbow style: visibility caveat
+
+<Note>
+  In Rainbow style, the current working directory is displayed as bright white text on a blue
+  background. The white is a fixed colour, but "blue" is whatever colour number 4 maps to in your
+  terminal's colour palette. If your palette's blue is very light (as it is in some default
+  configurations), white text on top of it can be difficult to read.
+
+  There are several ways to fix this:
+
+  - Run `p10k configure` and choose a different prompt style.
+  - Change your terminal's colour palette (e.g., switch to Tango Dark or Solarized Dark, or
+    redefine just the blue entry).
+  - Adjust the directory colours directly in `~/.p10k.zsh` by changing
+    `POWERLEVEL9K_DIR_BACKGROUND`, `POWERLEVEL9K_DIR_FOREGROUND`,
+    `POWERLEVEL9K_DIR_SHORTENED_FOREGROUND`, `POWERLEVEL9K_DIR_ANCHOR_FOREGROUND`, and/or
+    `POWERLEVEL9K_DIR_ANCHOR_BOLD` to values that produce better contrast in your terminal.
+</Note>

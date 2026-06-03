@@ -1,0 +1,228 @@
+---
+title: "Using Powerlevel10k with Zsh Plugin Managers"
+sidebarTitle: "Plugin Managers"
+description: "Troubleshoot and configure Powerlevel10k with Oh My Zsh, Prezto, Zim, Zinit, Antigen, and other popular Zsh plugin managers."
+---
+
+Powerlevel10k works with every major Zsh plugin manager and framework. Most managers have a dedicated one-liner that handles installation automatically; if that approach does not work in your environment, you can always fall back to the universal manual procedure, which is compatible with any setup. This page covers per-manager installation snippets, a step-by-step fallback procedure, and notes on Pure-style compatibility.
+
+## Per-Manager Installation
+
+<Tabs>
+  <Tab title="Frameworks">
+    ### Oh My Zsh
+
+    Clone the repository into your Oh My Zsh custom themes directory, then set `ZSH_THEME` in `~/.zshrc`:
+
+    ```zsh
+    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git \
+      "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
+    ```
+
+    Open `~/.zshrc`, find the line that sets `ZSH_THEME`, and change its value:
+
+    ```zsh
+    ZSH_THEME="powerlevel10k/powerlevel10k"
+    ```
+
+    ---
+
+    ### Prezto
+
+    Add the following line to `~/.zpreztorc`:
+
+    ```zsh
+    zstyle :prezto:module:prompt theme powerlevel10k
+    ```
+
+    ---
+
+    ### Zim
+
+    Add the following line to `~/.zimrc`, then run `zimfw install`:
+
+    ```zsh
+    zmodule romkatv/powerlevel10k --use degit
+    ```
+
+    ---
+
+    ### Antigen
+
+    Add the following lines to `~/.zshrc`. Make sure `antigen apply` appears after the theme directive:
+
+    ```zsh
+    antigen theme romkatv/powerlevel10k
+    antigen apply
+    ```
+
+    ---
+
+    ### Antibody
+
+    Add the following line to `~/.zshrc`:
+
+    ```zsh
+    antibody bundle romkatv/powerlevel10k
+    ```
+
+    ---
+
+    ### Antidote
+
+    Add the following line to `~/.zsh_plugins.txt`:
+
+    ```zsh
+    romkatv/powerlevel10k
+    ```
+  </Tab>
+  <Tab title="Standalone Managers">
+    ### Zplug
+
+    Add the following line to `~/.zshrc`:
+
+    ```zsh
+    zplug romkatv/powerlevel10k, as:theme, depth:1
+    ```
+
+    ---
+
+    ### Zgen
+
+    Add the following line to `~/.zshrc`:
+
+    ```zsh
+    zgen load romkatv/powerlevel10k powerlevel10k
+    ```
+
+    ---
+
+    ### Zplugin
+
+    Add the following lines to `~/.zshrc`:
+
+    ```zsh
+    zplugin ice depth=1
+    zplugin light romkatv/powerlevel10k
+    ```
+
+    <Note>
+      The `depth=1` ice is optional but recommended for faster cloning. Other ice types are neither recommended nor officially supported by Powerlevel10k.
+    </Note>
+
+    ---
+
+    ### Zinit
+
+    Add the following lines to `~/.zshrc`:
+
+    ```zsh
+    zinit ice depth=1
+    zinit light romkatv/powerlevel10k
+    ```
+
+    <Note>
+      The `depth=1` ice is optional but recommended. Other ice types are neither recommended nor officially supported by Powerlevel10k.
+    </Note>
+
+    ---
+
+    ### Zi
+
+    Add the following lines to `~/.zshrc`:
+
+    ```zsh
+    zi ice depth=1
+    zi light romkatv/powerlevel10k
+    ```
+
+    <Note>
+      The `depth=1` ice is optional but recommended. Other ice types are neither recommended nor officially supported by Powerlevel10k.
+    </Note>
+
+    ---
+
+    ### Zap
+
+    Add the following line to `~/.zshrc`:
+
+    ```zsh
+    plug "romkatv/powerlevel10k"
+    ```
+
+    ---
+
+    ### Manual
+
+    Clone the repository and source the theme from `~/.zshrc`:
+
+    ```zsh
+    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
+    echo 'source ~/powerlevel10k/powerlevel10k.zsh-theme' >>~/.zshrc
+    ```
+  </Tab>
+</Tabs>
+
+## Fallback: Manual Installation When Plugin Manager Setup Fails
+
+If the plugin-manager-specific instructions above did not work, the most reliable fix is to disable any theme your plugin manager is currently loading and then install Powerlevel10k manually. Manual installation does not make anything slower or otherwise sub-par — it is the recommended approach whenever you encounter plugin manager conflicts.
+
+<Steps>
+  <Step title="Disable the current theme in your plugin manager">
+    Each manager stores the active theme in a different place. Find the entry for your manager below and follow the instruction.
+
+    **Oh My Zsh** — Open `~/.zshrc` and remove the line that sets `ZSH_THEME`. It typically looks like:
+    ```zsh
+    ZSH_THEME="powerlevel9k/powerlevel9k"
+    ```
+
+    **Zplug** — Open `~/.zshrc` and remove the `zplug` command that references your current theme. For example:
+    ```zsh
+    # remove this line:
+    zplug bhilburn/powerlevel9k, use:powerlevel9k.zsh-theme
+    ```
+
+    **Prezto** — Open `~/.zpreztorc` and add (or replace any existing theme line with):
+    ```zsh
+    zstyle :prezto:module:prompt theme off
+    ```
+
+    **Antigen** — Open `~/.zshrc` and remove the `antigen theme` line. It typically looks like:
+    ```zsh
+    antigen theme powerlevel9k/powerlevel9k
+    ```
+  </Step>
+  <Step title="Clone Powerlevel10k manually">
+    ```zsh
+    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
+    ```
+  </Step>
+  <Step title="Source the theme from ~/.zshrc">
+    ```zsh
+    echo 'source ~/powerlevel10k/powerlevel10k.zsh-theme' >>~/.zshrc
+    ```
+  </Step>
+  <Step title="Restart Zsh">
+    ```zsh
+    exec zsh
+    ```
+
+    The configuration wizard will start automatically on the first launch. You can also trigger it at any time by typing `p10k configure`.
+  </Step>
+</Steps>
+
+<Tip>
+  Users in China can use the official mirror on gitee.com for faster downloads: `git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git ~/powerlevel10k`
+</Tip>
+
+## Plugin Unload Hook
+
+For plugin managers that implement a zplugin-style unload mechanism, Powerlevel10k exposes a `powerlevel10k_plugin_unload` function. Calling this function cleanly removes all prompt customizations made by the theme, allowing your plugin manager to unload it without leaving orphaned state.
+
+## Pure Style Compatibility
+
+Powerlevel10k can emulate the appearance of the [Pure Zsh theme](https://github.com/sindresorhus/pure). Run `p10k configure` and select the **Pure** style to activate it. You can still use Powerlevel10k-exclusive features such as [Instant Prompt](https://github.com/romkatv/powerlevel10k#instant-prompt) and [Transient Prompt](https://github.com/romkatv/powerlevel10k#transient-prompt) alongside the Pure appearance.
+
+<Warning>
+  Powerlevel10k does not recognize Pure's own configuration parameters. If you are migrating a Pure configuration, you will need to translate your settings to their Powerlevel10k equivalents. For example, replace `PURE_CMD_MAX_EXEC_TIME=3` with `POWERLEVEL9K_COMMAND_EXECUTION_TIME_THRESHOLD=3`. All relevant parameters are documented inside the generated `~/.p10k.zsh` file with inline comments.
+</Warning>

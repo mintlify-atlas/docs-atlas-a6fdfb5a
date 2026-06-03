@@ -1,0 +1,135 @@
+---
+title: "Eliminate Zsh Startup Lag with Instant Prompt"
+sidebarTitle: "Instant Prompt"
+description: "Enable Powerlevel10k instant prompt to display your shell immediately at startup, even while slow plugins are still loading in the background."
+---
+
+If your `~/.zshrc` loads slow plugins — such as [pyenv](https://github.com/pyenv/pyenv), [nvm](https://github.com/nvm-sh/nvm), or a plugin manager that initializes many tools — you may notice a noticeable pause before your shell becomes usable. Instant prompt eliminates this delay by printing your prompt immediately, before any plugin has finished loading, so you can start typing the moment the terminal window opens.
+
+## How It Works
+
+When instant prompt is active, Powerlevel10k intercepts the very beginning of Zsh initialization:
+
+1. It reads a previously cached prompt from `${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh` and prints it to the terminal immediately.
+2. Standard input is redirected to `/dev/null` for the duration of Zsh initialization, preventing initialization code from accidentally reading from the terminal.
+3. Standard output and standard error are redirected to a temporary file, buffering any output that plugins emit during startup.
+4. Once Zsh is fully initialized, the standard file descriptors are restored and the content of the temporary file is flushed to the terminal.
+
+The result is that your prompt appears instantly, plugins load in the background, and any buffered output appears afterward without visual disruption.
+
+<Note>
+  Instant prompt requires Zsh ≥ 5.4. On older versions the feature is silently disabled and `~/.zshrc` continues to load in the normal, sequential way.
+</Note>
+
+## Enabling Instant Prompt
+
+<Steps>
+  <Step title="Run the configuration wizard">
+    The simplest way to enable instant prompt is through `p10k configure`. On the *Instant Prompt* screen, select `Verbose` (recommended for first-time use) or `Quiet`.
+  </Step>
+  <Step title="Or add the snippet manually">
+    Add the following block **as close to the top of `~/.zshrc` as possible**, before any other initialization code that does not require console input:
+
+    ```zsh
+    # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+    # Initialization code that may require console input (password prompts, [y/n]
+    # confirmations, etc.) must go above this block; everything else may go below.
+    if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+      source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+    fi
+    ```
+
+    Copy the lines verbatim. Do not replace `source` with another method, do not add `zcompile`, and do not redirect output.
+  </Step>
+  <Step title="Ensure ~/.p10k.zsh is sourced at the bottom of ~/.zshrc">
+    The wizard adds this line automatically. If you added the snippet manually, verify it is present:
+
+    ```zsh
+    [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+    ```
+  </Step>
+  <Step title="Restart Zsh">
+    Use `exec zsh` to start a fresh session. Do not use `source ~/.zshrc` — it can cause unexpected behavior when Powerlevel10k is active.
+  </Step>
+</Steps>
+
+## Controlling the Warning Level
+
+The `POWERLEVEL9K_INSTANT_PROMPT` parameter in `~/.p10k.zsh` controls how Powerlevel10k responds when it detects console output during initialization:
+
+| Value | Behavior |
+|-------|----------|
+| `verbose` | Print a warning when console output is detected during initialization. Recommended for new users. |
+| `quiet` | Enable instant prompt but suppress the warning. Use this when you know a plugin prints output on startup and it is harmless. |
+| `off` | Disable instant prompt entirely. Use this if instant prompt breaks your Zsh setup and you cannot identify the cause. |
+
+```zsh
+# In ~/.p10k.zsh — choose one:
+typeset -g POWERLEVEL9K_INSTANT_PROMPT=verbose  # warn on startup output
+typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet    # no warning
+typeset -g POWERLEVEL9K_INSTANT_PROMPT=off      # disabled
+```
+
+You can also change this value by re-running `p10k configure` and adjusting the *Instant Prompt* selection.
+
+## Caveats
+
+<Warning>
+  **Console input during initialization will not work.** Because stdin is redirected to `/dev/null` while instant prompt is active, any initialization code that prompts for a password, SSH key passphrase, or a `[y/n]` confirmation must be moved **above** the instant prompt block in `~/.zshrc`.
+</Warning>
+
+**Output may appear uncolored.** Code that prints to stdout or stderr during initialization will have its output buffered and replayed after the prompt. Colors from escape sequences may not survive the buffering, so the output can appear plain. You can suppress such output with `>/dev/null`, move it above the instant prompt block, or set `POWERLEVEL9K_INSTANT_PROMPT=quiet` to silence the warning.
+
+### Broken vs. Fixed `~/.zshrc` Example
+
+The following `~/.zshrc` breaks when instant prompt is enabled because `keychain` prompts for a passphrase after stdin has been redirected to `/dev/null`, and `chatty-script` floods the buffered output:
+
+```zsh
+# ❌ Broken — these run after stdin is /dev/null
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+keychain id_rsa --agents ssh  # asks for password — BROKEN with instant prompt
+chatty-script                 # spams stdout even when everything is fine
+```
+
+Fixed version:
+
+```zsh
+# ✅ Fixed — console I/O moved above the instant prompt block
+keychain id_rsa --agents ssh  # moved before instant prompt — OK
+
+# OK to perform console I/O before this point.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+# From this point on, until zsh is fully initialized, console input won't work and
+# console output may appear uncolored.
+
+chatty-script >/dev/null      # output suppressed — OK
+```
+
+## direnv Integration
+
+[direnv](https://direnv.net/) needs to both export environment variables before the prompt renders (so the prompt reflects the correct environment) and register its hook after Zsh is initialized. With instant prompt active, add one line **above** and one line **below** the instant prompt block:
+
+```zsh
+(( ${+commands[direnv]} )) && emulate zsh -c "$(direnv export zsh)"
+
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+(( ${+commands[direnv]} )) && emulate zsh -c "$(direnv hook zsh)"
+```
+
+## Exporting GPG_TTY
+
+If you use GPG with a passphrase agent, export `GPG_TTY` anywhere in `~/.zshrc` using `$TTY`:
+
+```zsh
+export GPG_TTY=$TTY
+```
+
+This works whether instant prompt is enabled or not. It is also significantly faster than the commonly used `export GPG_TTY=$(tty)`, which spawns a subshell.
